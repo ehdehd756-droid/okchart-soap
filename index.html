@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v9</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v10</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -342,6 +342,58 @@ const P_CHUNA_TARGET={
 const P_CHUNA_METHODS=['압법','유법','나법','추법','근법','진법'];
 function pRecommendedGroups(){const groups=[];const used=new Set();for(const r of state.regions.values()){const id=r.region;if(used.has('r'+id))continue;used.add('r'+id);const pts=P_PRESET_V8[id]||[];if(pts.length)groups.push([DATA[id]?.label||id,pts]);}for(const k of state.modules.keys()){const pts=P_SYS_PRESET[k]||[];if(pts.length)groups.push([SYS[k]?.name||k,pts]);}return groups;}
 function pChunaTargets(){const xs=[];for(const r of state.regions.values()){const mus=P_CHUNA_TARGET[r.region]||[];const side=r.side==='L'?'좌측 ':r.side==='R'?'우측 ':'';for(const m of mus)xs.push(side+m);}return [...new Set(xs)];}
+// 심평원 「침술 항목별 적용경혈」 별첨2(2015-99호, 2024 심사기준 책자 수록)를
+// 선택 UI로 정리. 실제 시술을 추천하거나 급여 적합성을 확정하지 않음.
+const P_SPECIAL_CLINICAL={
+ tuja:{label:'투자법',unit:'혈위 간 투침 경로',groups:{
+  head:['지창-협거(사백)','태양-솔곡','이문-청궁','동자료-관료','인당-찬죽','관료-영향','사죽공-솔곡','동자료-어요'],
+  neck:['풍지-풍부','태양-솔곡'],
+  shoulder:['견료-극천'],
+  elbow:['곡지-수삼리','곡지-척택'],
+  wrist:['내관-외관','합곡-후계','열결-태연','합곡-노궁','간사-지구','액문-양지'],
+  knee:['양릉천-음릉천','슬관-슬안','삼음교-현종'],
+  ankle:['곤륜-태계','삼음교-현종'],
+ }, all:['지창-협거(사백)','태양-솔곡','내관-외관','삼음교-현종','합곡-후계','견료-극천','곤륜-태계','이문-청궁','동자료-관료','인당-찬죽','관료-영향','곡지-수삼리','곡지-척택','사죽공-솔곡','열결-태연','풍지-풍부','양릉천-음릉천','합곡-노궁','동자료-어요','간사-지구','슬관-슬안','액문-양지']},
+ joint:{label:'관절내침술',unit:'관절별 적용경혈',groups:{
+  shoulder:['견우(LI15)','노수(SI10)'],wrist:['양계(LI5)','양지(TE4)','양곡(SI5)','대릉(PC7)'],
+  ankle:['구허(GB40)','신맥(BL62)','조해(KI6)','중봉(LR4)'],
+  elbow:['소해(HT3)','곡지(LI11)','천정(TE10)'],
+  head:['상관(GB3)','하관(ST7)'],hip:['환도(GB30)'],knee:['독비(ST35)','슬안(무릎 혈위)']
+ }, all:['견우(LI15)','노수(SI10)','양계(LI5)','양지(TE4)','양곡(SI5)','대릉(PC7)','구허(GB40)','신맥(BL62)','조해(KI6)','중봉(LR4)','소해(HT3)','곡지(LI11)','천정(TE10)','상관(GB3)','하관(ST7)','환도(GB30)','독비(ST35)','슬안(무릎 혈위)']},
+ spinal:{label:'척추간침술',unit:'척추부 적용경혈',groups:{
+  neck:['대추(GV14)','풍부(GV16)','신주(GV12)','신도(GV11)'],
+  thoracic:['신주(GV12)','신도(GV11)','지양(GV9)','근축(GV8)','척중(GV6)'],
+  back:['척중(GV6)','명문(GV4)','요양관(GV3)']
+ }, all:['대추(GV14)','풍부(GV16)','척중(GV6)','명문(GV4)','신주(GV12)','신도(GV11)','지양(GV9)','근축(GV8)','요양관(GV3)']},
+ peritoneal:{label:'복강내침술',unit:'복부 적용경혈',groups:{
+  abdomen:['상완(CV13)','중완(CV12)','하완(CV10)','기해(CV6)','관원(CV4)','중극(CV3)','천추(ST25)','대횡(SP15)']
+ }, all:['상완(CV13)','중완(CV12)','하완(CV10)','기해(CV6)','관원(CV4)','중극(CV3)','천추(ST25)','대횡(SP15)']},
+ orbital:{label:'안와내침술',unit:'안와내 적용경혈',groups:{head:['정명(BL1)','승읍(ST1)']},all:['정명(BL1)','승읍(ST1)']},
+ nasal:{label:'비강내침술',unit:'비강내 적용경혈',groups:{head:['내영향(EX-HN9)']},all:['내영향(EX-HN9)']}
+};
+const P_SPECIAL_PRECAUTIONS={
+ orbital:'안와는 안구와 주요 혈관·신경에 인접합니다. 이 혈위의 일반 표면 자침을 안와내침술로 간주할 수 없습니다.',
+ nasal:'영향(LI20) 등 외비부 경혈의 일반 자침은 비강내침술과 다릅니다.',
+ peritoneal:'일반 복부 피부·피하 자침만으로 복강내침술에 해당하지 않습니다. 복강 내 자침은 고위험 술기입니다.',
+ joint:'관절 주위 경혈침술만으로 관절내침술로 산정하지 않습니다. 실제 술기 구분이 필요합니다.',
+ spinal:'척추부 경혈의 일반 자침만으로 척추간침술로 산정하지 않습니다. 척추 신경·혈관 관련 위험을 확인하세요.',
+ tuja:'투자법은 실제 투침한 경로를 기록하세요. 별개 혈위에 각각 자침한 것은 투자법에 해당하지 않습니다.'
+};
+function specialPointPalette(host,k,p){
+ const meta=P_SPECIAL_CLINICAL[k],regions=[...new Set([...state.regions.values()].map(o=>o.region))];
+ const suggested=[...new Set(regions.flatMap(r=>meta.groups[r]||[]))];
+ const panel=makePart('div','acu-action');
+ panel.append(makePart('div','subhead','심평원 적용혈 참고 · '+meta.unit+' 클릭 선택'));
+ panel.append(makePart('div','point-hint',suggested.length?'선택한 주소증/부위와 관련된 적용혈 '+suggested.length+'개를 먼저 표시합니다. 실제 시술 여부를 확인해 선택하세요.':'인체도에서 해당 부위를 선택하면 우선 표시할 적용혈이 나타납니다. 전체 목록은 아래에서 확인할 수 있습니다.'));
+ if(suggested.length){const group=makePart('div','p-site-key');group.append(makePart('div','p-group-name','주소증에 따른 우선 선택지 ('+suggested.length+'개)'));pChips(group,suggested,p.points,()=>{});panel.append(group);}
+ const toggle=makePart('button','tiny',p.expanded?'적용혈 전체 목록 접기':'해당 특수침술 전체 적용혈 보기 ('+meta.all.length+'개)');toggle.type='button';toggle.onclick=()=>{p.expanded=!p.expanded;drawBilling();};panel.append(toggle);
+ if(p.expanded){const group=makePart('div','p-site-key');group.append(makePart('div','p-group-name','심평원 적용경혈 참고 목록'));pChips(group,meta.all,p.points,()=>{});panel.append(group);}
+ if(p.points.size){const box=makePart('div','point-side-list');box.append(makePart('div','subhead',k==='tuja'?'선택한 투자 경로 · 시술 측 선택':'선택한 적용혈 · 시술 측 선택'));
+  for(const pt of p.points){const item=makePart('div','point-side-item');item.append(makePart('span','',pt));const sel=document.createElement('select');sel.setAttribute('aria-label',pt+' 시술 측');for(const [v,label] of [['','좌우 미기록'],['좌','좌측'],['우','우측'],['양측','양측'],['정중','정중']])sel.add(new Option(label,v));sel.value=p.pointSides[pt]||'';sel.onchange=()=>{p.pointSides[pt]=sel.value;render();};item.append(sel);box.append(item);}panel.append(box);}
+ const wrap=makePart('label','field gap',k==='tuja'?'직접 확인한 기타 투자 경로 (선택)':'추가로 확인한 자침 위치 (선택)');const inp=document.createElement('input');inp.placeholder=k==='tuja'?'예: 실제 시술 경혈 A-B':'예: 선택 목록 외 실제 자침 위치';inp.value=p.pointOther||'';inp.oninput=()=>{p.pointOther=inp.value;render()};wrap.append(inp);panel.append(wrap);
+ panel.append(makePart('div','billrules',P_SPECIAL_PRECAUTIONS[k]+' 적용혈 선택만으로 해당 특수침술 시행이나 수가 인정이 확정되지 않습니다.'));
+ host.append(panel);
+}
 const P_SPECIAL=new Set(['tuja','spinal','joint','peritoneal','orbital','nasal']);
 const P_ACUPUNCTURE=new Set(['acu','tuja','spinal','joint','peritoneal','orbital','nasal']);
 const P_KIND={simple:'단순추나(40710)',complex:'복잡추나(40720 · 40721은 별도 80% 본인부담 기준)',special:'특수(탈구)추나(40730)'};
@@ -432,8 +484,7 @@ function billItem(k){const info=P_META[k],p=getProc(k);const card=makePart('div'
  else if(k==='dry'){pMacroBlock(body,k,p);pRegionBlock(body,k,p);procPointPalette(body,k,p);pMethodsBlock(body,k,p);}
  else if(k==='pharma'){pMacroBlock(body,k,p);pRegionBlock(body,k,p);pDrugBlock(body,k,p);}
  else if(k==='chuna'){pChunaBlock(body,p);pRegionBlock(body,k,p);}
- else if(k==='tuja'){pRegionBlock(body,k,p);body.append(makePart('div','subhead','투자 혈위 경로 (실제 투침한 경우만)'));pChips(body,P_PAIR,p.points,()=>{});pField(body,'그 외 실제 경로','detail','예: 사용한 투자 경혈과 방향');}
- else if(P_SPECIAL.has(k)){pRegionBlock(body,k,p);pField(body,'구체적인 자침 부위 및 확인된 술기','detail','실제 진료기록에 남길 해부학적 부위·방법');}
+ else if(P_SPECIAL.has(k)){pRegionBlock(body,k,p);specialPointPalette(body,k,p);pField(body,k==='tuja'?'실제 투침 방향·경로 및 방법 추가기록':'일반 경혈침술과 구분되는 실제 시술 방법·위치','detail',k==='tuja'?'예: 선택한 혈위 간 실제 투침방향과 시술 소견':'예: 해부학적 시술 위치, 실제 적용한 술기와 시술 후 확인 사항');}
  else{pRegionBlock(body,k,p);if(k==='electro'||k.startsWith('moxa'))procPointPalette(body,k,p);pMethodsBlock(body,k,p);}
  if(k==='electro'){pField(body,'전극 연결 혈위·쌍 (필요하면 구체적으로)','detail','예: 우측 견우-견료, 좌측 신수-대장수');pField(body,'주파수 Hz (확인한 경우)','stimFrequency','예: 2/100Hz');}
  if(k.startsWith('moxa'))pField(body,'시행 장수/회수 (선택)','count','예: 3장 / 2회');
@@ -462,7 +513,7 @@ function procLabel(k,p){
 function billingP(){const arr=[];for(const [k,p]of pState){if(P_SPECIAL.has(k)&&(!p.confirmed||(!p.areas.size&&!p.places.trim())||k!=='tuja'&&!p.detail.trim()||k==='tuja'&&!p.points.size&&!p.detail.trim()))continue;
  const bits=recordedPNames(p);
  if(['acu','wet','dry','pharma'].includes(k)&&p.macro.size)bits.push('시술 대부위: '+[...p.macro].join(', '));
- if(p.points.size||p.pointOther.trim())bits.push((k==='tuja'?'투침 경로: ':'혈위·시술점: ')+pointText(p));
+ if(p.points.size||p.pointOther.trim())bits.push((k==='tuja'?'투침 경로: ':P_SPECIAL.has(k)?'적용혈·시술점: ':'혈위·시술점: ')+pointText(p));
  if(p.methods.size)bits.push('술기: '+[...p.methods].join(', '));if(k==='chuna'&&p.muscleTechs.size)bits.push('근막 대상·수기: '+[...p.muscleTechs].join(', '));
  if(k==='pharma'){if(p.drugName)bits.push('약침 종류: '+p.drugName);if(p.drugConcentration)bits.push('약액명: '+sanitize(p.drugConcentration));if(p.drugAmount)bits.push('총 투여량: '+p.drugAmount+'mL');}
  if(p.detail.trim())bits.push('시술 상세: '+sanitize(p.detail));if(k==='electro'&&p.stimFrequency.trim())bits.push('주파수: '+sanitize(p.stimFrequency));
@@ -472,6 +523,7 @@ if(!havePlace)issues.push(meta.name+': 실제 시술 부위를 입력하세요.'
 if(['acu','wet'].includes(k)&&!p.macro.size)issues.push(meta.name+': 5개 대부위 중 해당 부위를 선택해야 1·2부위 구분을 검토할 수 있습니다.');
 if(['acu','wet'].includes(k)&&p.areas.size){const regionMacro={neck:'두·경부',head:'두·경부',chest:'흉·복부',abdomen:'흉·복부',back:'요·배부',thoracic:'요·배부',shoulder:'상지부',elbow:'상지부',wrist:'상지부',hip:'하지부',knee:'하지부',ankle:'하지부'};const found=[...p.areas].map(z=>state.regions.get(z)).filter(Boolean).map(z=>regionMacro[z.region]);const missing=[...new Set(found.filter(x=>x&&!p.macro.has(x)))];if(missing.length)issues.push(meta.name+': 시술부위와 대부위 선택 불일치('+missing.join(', ')+') — 직접 확인하세요.');}
 if(P_SPECIAL.has(k)&&(!p.confirmed||!p.detail.trim()&&k!=='tuja'||k==='tuja'&&!p.points.size&&!p.detail.trim()))issues.push(meta.name+': 실제 특수침술 시행 확인 및 구체적 술기를 기록하세요.');
+if(P_SPECIAL.has(k)&&!p.points.size&&!p.pointOther.trim())issues.push(meta.name+': 심평원 적용혈·투자경로 중 실제 시행한 항목을 선택하거나 상세 위치를 기록하세요.');
 if(k==='chuna'&&(!p.chunaKind||(!p.methods.size&&!p.muscleTechs.size)))issues.push('추나요법: 단순·복잡·특수 유형과 실제 시행 술기를 선택하세요.');
 if(k==='acu'&&!p.points.size&&!p.pointOther.trim()&&!p.places.trim())issues.push('경혈침술: 실제 자침한 혈위 또는 위치의 구체적 기록을 확인하세요.');
 if(k==='ir'&&!p.result.trim())issues.push('경피적외선조사요법: 시행 후 결과·반응을 기록하세요.');
