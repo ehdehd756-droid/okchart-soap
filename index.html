@@ -402,7 +402,7 @@ function specialPointPalette(host,k,p){
 }
 const P_SPECIAL=new Set(['tuja','spinal','joint','peritoneal','orbital','nasal']);
 const P_ACUPUNCTURE=new Set(['acu','tuja','spinal','joint','peritoneal','orbital','nasal']);
-const P_KIND={simple:'단순추나(40710)',complex:'복잡추나(40720 · 40721은 별도 80% 본인부담 기준)',special:'특수(탈구)추나(40730)'};
+const P_KIND={simple:'단순추나(40710)',complex:'복잡추나(40720 · 청구유형 확인)',special:'특수(탈구)추나(40730)'};
 const P_CHUNA_TECH={simple:['관절가동추나','근막추나','관절신연추나'],complex:['관절교정추나'],special:['탈구추나']};
 const pState=new Map();
 function getProc(k){if(!pState.has(k))pState.set(k,{points:new Set(),pointSides:{},areas:new Set(),macro:new Set(),methods:new Set(),muscleTechs:new Set(),chunaModes:new Set(),chunaMuscles:new Set(),chunaMET:new Set(),chunaCorrections:new Set(),sites:new Set(),places:'',result:'',count:'',detail:'',confirmed:false,chunaKind:'',expanded:false,drugName:'',drugAmount:'',drugConcentration:'',stimFrequency:'',stimMode:'',cuppingKind:'',pointOther:''});return pState.get(k)}
