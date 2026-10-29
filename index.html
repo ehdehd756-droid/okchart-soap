@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v12</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v13</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -6,6 +6,7 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 .map-wrap{display:grid;grid-template-columns:1fr 1fr;gap:12px}.map-card{border:1px solid var(--line);border-radius:13px;padding:10px 6px;background:linear-gradient(180deg,#fbfdfd,#f4f9f8);text-align:center}.map-card h3{font-size:13px;margin-bottom:4px}.map-card .sub{font-size:10px;color:var(--muted)}.bodymap{width:100%;max-width:272px;height:auto;display:block;margin:0 auto}.anatomy{fill:#e2ecec;stroke:#a0b6b7;stroke-width:1.8;stroke-linejoin:round}.details{fill:none;stroke:#bbcece;stroke-width:1.35;stroke-linecap:round}.hot{cursor:pointer}.hot circle{fill:#ffffffea;stroke:#90b1b1;stroke-width:1.6}.hot text{font-size:11px;font-weight:800;fill:#446970;pointer-events:none;user-select:none}.hot.active circle{fill:#05776c;stroke:#056258;stroke-width:2.5}.hot.active text{fill:#fff}.hot:hover circle,.hot:focus circle{stroke:#04675f;stroke-width:3.2}.hot:focus{outline:none}.maplegend{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.selected-locations{display:flex;gap:6px;flex-wrap:wrap;min-height:25px}.selection{background:#e8f4f2;border:1px solid #80beb7;color:#0a665d;border-radius:7px;padding:5px 9px;font-weight:700;font-size:12px}.selection span{margin-left:6px;color:#a04541}
 .editorcard{border:1px solid #d6e4e5;background:#fcfdfd;border-radius:12px;margin:11px 0;overflow:hidden}.editorcard summary{list-style:none;cursor:pointer;padding:11px 13px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:1px solid transparent}.editorcard[open] summary{border-bottom-color:var(--line);background:#f4faf8}.editorcard summary::-webkit-details-marker{display:none}.edbody{padding:12px}.edhead{font-weight:850}.edbadge{font-size:11px;color:#0a7063;background:#e5f3ef;border-radius:20px;padding:3px 8px}.sideoptions{margin:9px 0}.choicegroup{margin:11px 0}.choicegroup h4{margin-bottom:5px;color:#4c6970}.romrow{display:grid;grid-template-columns:minmax(120px,1fr) minmax(122px,1fr) minmax(126px,1fr);gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid #e8eff0}.romrow label{font-size:12px;font-weight:700}.romrow select,.examrow select{min-width:0;width:100%;padding:7px 5px;border:1px solid #cbdadc;background:white;border-radius:7px;font-size:11.5px}.examrow{display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid #e8eff0;padding:6px 0}.examrow span{font-size:12px;font-weight:700}.examrow select{max-width:195px}.alertlist{margin:8px 0;padding:10px 12px;border:1px solid #efd9a5;background:#fff9ed;border-radius:9px;font-size:11.5px;color:#735a2a}.module{border:1px solid #d4e2e4;border-radius:12px;margin-top:10px;overflow:hidden;background:#fcfdfd}.module summary{padding:11px;cursor:pointer;display:flex;justify-content:space-between;gap:7px;background:#f6faf9;font-weight:800}.module summary::-webkit-details-marker{display:none}.module .inside{padding:12px}.modtag{font-size:10.5px;color:#557477;font-weight:600}.module-checked{font-size:12px;background:#e4f2ed;border-radius:5px;padding:3px 7px;color:#0b705e}.banner{border:1px solid #d5e9e5;background:#edf8f6;border-radius:10px;padding:11px;font-size:12px;color:#255d59;margin:12px 0}.redflag{color:#ad4538;border-color:#e7b7b0;background:#fff3f1}
 .outpane{position:sticky;top:15px}.outhead{border-bottom:1px solid var(--line);padding:17px 17px 12px}.outhead p{margin:5px 0 0;color:var(--muted);font-size:12px}.paper{background:#fbfcfc;border:1px solid #dce6e7;border-radius:10px;padding:15px;margin:15px;white-space:pre-wrap;font:12.8px/1.85 'Malgun Gothic',system-ui,sans-serif;min-height:350px;word-break:break-word}.buttons{display:grid;grid-template-columns:2fr 1fr 1fr;gap:7px;padding:0 15px 15px}.buttons button{padding:11px 7px}.warnlist{border-top:1px solid var(--line);padding:12px 17px;background:#fcfdfd}.warnlist ul{font-size:11.5px;color:#60737a;padding-left:16px;margin:7px 0}.warnlist li{margin:5px 0}.warnlist .error{color:#a55439}.footer{max-width:1480px;margin:0 auto 25px;padding:0 18px;color:var(--muted);font-size:11.5px}.hide{display:none!important}.gap{margin-top:10px}.summaryline{font-size:12px;color:#6d8083;margin-top:6px}.switch{display:flex;align-items:center;gap:7px}.switch input{accent-color:var(--teal)}#toast{display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);max-width:90%;padding:11px 16px;background:#143f43;color:white;border-radius:9px;box-shadow:0 8px 24px #1235;z-index:9}
+.chuna-eval{border:1px solid #c8deda;background:#f6fbfa;border-radius:11px;padding:12px;margin-top:16px}.chuna-comparison{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.chuna-compare-col{border:1px solid #dce8e5;background:white;border-radius:9px;padding:10px;display:grid;gap:8px}.chuna-compare-col h4{font-size:13px;color:#136d63}.chuna-compact{padding-bottom:3px}@media(max-width:580px){.chuna-comparison{grid-template-columns:1fr 1fr;gap:6px}.chuna-compare-col{padding:8px}.chuna-compare-col .field{font-size:11px}}
 @media(max-width:1080px){main{grid-template-columns:1fr}.outpane{position:static}.paper{min-height:200px}}@media(max-width:580px){main{padding:9px}.section{padding:14px 12px}.map-wrap{gap:7px}.map-card{padding:6px 2px}.grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}.romrow{grid-template-columns:1fr 1fr}.romrow label{grid-column:1/-1}.buttons{grid-template-columns:2fr 1fr 1fr}header{padding:18px}header h1{font-size:20px}}@media print{header,.pane,.buttons,.warnlist,.footer{display:none!important}main{display:block;padding:0}.outpane{border:0;box-shadow:none}.paper{border:0;margin:0;white-space:pre-wrap;font-size:11pt;min-height:0}}
 
 .billing-overview{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 0}.billcat{font-size:12px;margin:20px 0 7px;color:#315d63;border-bottom:1px solid #d8e6e5;padding-bottom:7px}.billitem{border:1px solid #d5e4e5;border-radius:11px;margin:8px 0;overflow:hidden;background:#fff}.billhead{display:flex;align-items:center;gap:9px;justify-content:space-between;padding:10px 12px;flex-wrap:wrap;background:#f9fbfb}.billitem.enabled{border-color:#76b9ad;background:#fbfffd}.billitem.enabled>.billhead{background:#edf8f5}.billtitle{font-weight:850;font-size:12.7px}.billcode{font-size:10.5px;color:#617a7d;margin-left:7px}.billbody{padding:12px;border-top:1px solid #e3eded}.billbody .subhead{margin:10px 0 5px}.billbody input,.billbody select{min-width:0}.billpill{display:inline-block;background:#edf4f4;border-radius:6px;font-size:10px;color:#365e65;padding:3px 6px}.billrules{margin-top:8px;color:#7b6739;background:#fff9ef;border:1px solid #ebdfc8;border-radius:8px;padding:8px;font-size:11px}.billtiny{font-size:11px;color:#698085}.billsection{display:grid;grid-template-columns:1fr 1fr;gap:10px}.billdanger{background:#fff4f1;border-color:#e5b8b0;color:#91453a}.billwarn{font-size:11px;margin-top:8px;color:#9b593f}.billpointlist{max-height:255px;overflow:auto;padding:7px;border:1px solid #e2eaea;border-radius:8px}.billitem .field input{font-weight:400}.billnav{background:#f0f7f6;border-radius:8px;padding:7px 9px;font-size:11px;color:#476969}.billbody .chip{padding:5px 8px;font-size:11px}.p-check{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:#704e47;margin:10px 0}.billcount{font-size:11px;font-weight:800;background:#dff2eb;border-radius:12px;padding:4px 8px;color:#11695d}@media(max-width:580px){.billsection{grid-template-columns:1fr}.billhead{align-items:flex-start}}
@@ -139,7 +140,7 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
   </div>
   <div class="row gap"><button type="button" class="btn primary" id="presetSaveNew">현재 P를 새 세트로 저장</button><button type="button" class="btn" id="presetOverwrite" disabled>불러온 세트 덮어쓰기</button><button type="button" class="btn" id="presetDelete" disabled>선택 세트 삭제</button></div>
   <div class="row gap"><button type="button" class="tiny" id="presetExport">세트 백업 JSON 내려받기</button><button type="button" class="tiny" id="presetImportBtn">백업 JSON 가져오기</button><input type="file" id="presetImportFile" accept=".json,application/json" class="hide"></div>
-  <p class="micro">P 상세 선택에서 혈위·술기·대부위를 고른 뒤 저장합니다. 환자별 자유서술·시술 후 반응·약침 투여량·전침 시간은 세트에 저장하지 않고 매번 확인합니다. PC 교체·브라우저 초기화 전 백업하세요. 여러 PC 간 자동 동기화는 되지 않습니다.</p>
+  <p class="micro">P 상세 선택에서 혈위·추나 술기·대부위를 고른 뒤 저장합니다. 환자별 전·후 NRS·ROM·촉진결과, 자유서술, 시술 후 반응, 약침 투여량·전침 시간은 세트에 저장하지 않습니다. PC 교체·브라우저 초기화 전 백업하세요. 여러 PC 간 자동 동기화는 되지 않습니다.</p>
  </details>
 </section>
 <section class="section"><div class="section-title"><h2>07. P 실제 시술기록 / 보험항목 선택</h2><span class="micro">당일 시행한 행위만 선택</span></div><div class="tabs" id="planTabs"><button type="button" class="tab active" data-plan="none">P 생략</button><button type="button" class="tab" data-plan="click">치료 선택</button><button type="button" class="tab" data-plan="billing">건보·자보 상세 P</button><button type="button" class="tab" data-plan="manual">직접입력</button></div><div id="planClick" class="hide"><div class="subhead">당일 실제 시행한 치료</div><div id="treatChips" class="chips"></div><div class="subhead">치료한 위치</div><div id="pRegionChips" class="chips"></div><div class="subhead">향후 계획</div><div id="nextChips" class="chips"></div></div><div id="planBilling" class="hide"><div class="p-quick"><h3>자주 쓰는 시술 · 바로 추가</h3><div class="p-proc-hint">주소증을 먼저 선택한 후 침·전침·뜸·약침을 누르면 각 시술 아래에 추천 혈위가 나타납니다. 시술을 선택하는 것만으로 혈위가 자동 기록되지는 않습니다.</div><div class="chips" id="pQuickActions"></div><div class="p-proc-hint" id="pQuickStatus"></div></div><div class="banner">실제 시행한 항목만 선택하세요. <strong>기록 생성은 청구 승인과 다릅니다.</strong> 불충분한 항목은 SOAP 아래에 안내합니다.</div><div id="billingOverview" class="billing-overview"></div><div class="point-hint" id="pClinicalGuide">인체도에서 통증 부위 또는 다빈도 증상을 선택하면 관련 경혈을 제시합니다. 추천 경혈은 자동 선택되지 않습니다. 실제로 시행한 내용만 기록하세요.</div><div id="billingEditor"></div><div id="billingRules" class="note"></div></div><div class="hide gap" id="planManual"><label class="field">시행 치료 및 계획<textarea id="manualP"></textarea></label></div></section>
@@ -431,15 +432,17 @@ const P_CHUNA_TECH={simple:['관절가동추나','근막추나','관절신연추
 const pState=new Map();
 // Stored locally: only reusable procedure settings, NEVER a chart or patient record.
 const PRESET_KEY='okchart-soap-procedure-presets-v1';
+// Backwards compatible with v12. A backup copy protects against malformed primary data (not browser-data deletion).
+const PRESET_BACKUP_KEY='okchart-soap-procedure-presets-v1-last-good';
 const PRESET_SETS=['points','macro','methods','chunaModes','chunaMuscles','chunaMET','chunaCorrections','sites'];
-const PRESET_TEXT=['drugName','drugConcentration','cuppingKind','chunaKind'];
+const PRESET_TEXT=['drugName','drugConcentration','cuppingKind','chunaKind','chunaReleaseMethod','chunaMETMethod','chunaMETReps','chunaCorrectionMethod'];
 const PRESET_CATS=['어깨','허리','목','무릎','팔·손','고관절·하지','소화기·내과','기타'];
 let procedurePresets=[];
 let selectedPresetId='';
 let presetNeedsReview=false;
 let presetEverApplied=false;
 
-function getProc(k){if(!pState.has(k))pState.set(k,{points:new Set(),pointSides:{},areas:new Set(),macro:new Set(),methods:new Set(),muscleTechs:new Set(),chunaModes:new Set(),chunaMuscles:new Set(),chunaMET:new Set(),chunaCorrections:new Set(),sites:new Set(),places:'',result:'',count:'',detail:'',confirmed:false,chunaKind:'',expanded:false,drugName:'',drugAmount:'',drugConcentration:'',stimFrequency:'',stimMode:'',cuppingKind:'',pointOther:''});return pState.get(k)}
+function getProc(k){if(!pState.has(k))pState.set(k,{points:new Set(),pointSides:{},areas:new Set(),macro:new Set(),methods:new Set(),muscleTechs:new Set(),chunaModes:new Set(),chunaMuscles:new Set(),chunaMET:new Set(),chunaCorrections:new Set(),sites:new Set(),places:'',result:'',count:'',detail:'',confirmed:false,chunaKind:'',expanded:false,drugName:'',drugAmount:'',drugConcentration:'',stimFrequency:'',stimMode:'',cuppingKind:'',pointOther:'',chunaReleaseMethod:'',chunaMETMethod:'',chunaMETReps:'',chunaCorrectionMethod:'',chunaExamMotion:'',chunaPreNRS:'',chunaPostNRS:'',chunaPreROM:'',chunaPostROM:'',chunaPrePalp:'',chunaPostPalp:''});return pState.get(k)}
 function hasProc(k){return pState.has(k)}
 function makePart(tag,cls='',textValue=''){const n=document.createElement(tag);if(cls)n.className=cls;if(textValue)n.textContent=textValue;return n}
 function pChips(host,options,selected,after){const row=makePart('div','chips');for(const x of options){row.append(choiceButton(x,selected.has(x),()=>{selected.has(x)?selected.delete(x):selected.add(x);after();drawBilling();render();}));}host.append(row);return row}
@@ -503,10 +506,32 @@ function pChunaCorrectionOptions(){
  if(!regions.size)return [...P_CHUNA_CORRECTIONS.neck.slice(0,2),...P_CHUNA_CORRECTIONS.thoracic.slice(0,2),...P_CHUNA_CORRECTIONS.back.slice(0,4),...P_CHUNA_CORRECTIONS.hip.slice(0,4)];
  return [...new Set([...regions].flatMap(x=>P_CHUNA_CORRECTIONS[x]||[]))];
 }
+const CHUNA_RELEASE_METHODS=['지속압박 이완','종축 근막신장','횡방향 근막신장','수동 신장·이완'];
+const CHUNA_MET_METHODS=['등척성 수축-이완','상호억제 MET','수축 후 신장'];
+const CHUNA_CORRECTION_METHODS=['관절가동 후 교정','추력교정'];
+const CHUNA_ROM_GRADES=['정상','경도 제한','중등도 제한','고도 제한','통증 동반 제한'];
+const CHUNA_PALP_GRADES=['압통(+)','근긴장 증가','경결 촉지','압통(-)','근긴장 완화'];
+function chunaChoice(host,title,key,choices,p){
+ const wrapper=makePart('div','chuna-compact');wrapper.append(makePart('div','subhead',title));
+ const row=makePart('div','chips');for(const value of choices)row.append(choiceButton(value,p[key]===value,()=>{p[key]=p[key]===value?'':value;drawBilling();render();}));wrapper.append(row);host.append(wrapper);
+}
+function chunaSelect(host,title,property,options,p){
+ const wrapper=makePart('label','field',title);const sel=document.createElement('select');sel.setAttribute('aria-label',title);
+ for(const [v,label] of [['','미평가 / 선택 안 함'],...options.map(x=>Array.isArray(x)?x:[x,x])]){
+   const opt=document.createElement('option');opt.value=v;opt.textContent=label;sel.append(opt);
+ }
+ sel.value=options.some(x=>(Array.isArray(x)?x[0]:x)===p[property])?p[property]:'';
+ sel.onchange=()=>{p[property]=sel.value;render();};wrapper.append(sel);host.append(wrapper);
+}
+function chunaMotionOptions(){
+ const found=new Set();for(const v of state.regions.values()){
+   for(const label of (DATA[v.region]?.rom||[]))found.add(label);
+ }
+ return [...found].slice(0,25);
+}
 function pChunaBlock(host,p){
- host.append(makePart('div','subhead','① 실제 시행한 추나 방식'));
- host.append(makePart('div','billtiny','압법·유법·나법 대신 근육/관절 대상만 선택합니다. 복합 시행 시 여러 방식을 고를 수 있습니다.'));
- const modes=[['근막이완','근막이완'],['MET','MET (근에너지기법)'],['관절교정','관절교정']];
+ host.append(makePart('div','subhead','① 시행한 방식 · 1~3개 선택'));
+ const modes=[['근막이완','근막이완'],['MET','MET'],['관절교정','관절교정']];
  const row=makePart('div','chips');for(const [mode,title] of modes)row.append(choiceButton(title,p.chunaModes.has(mode),()=>{
   p.chunaModes.has(mode)?p.chunaModes.delete(mode):p.chunaModes.add(mode);
   p.chunaKind=p.chunaModes.has('관절교정')?'complex':p.chunaModes.size?'simple':'';
@@ -514,23 +539,39 @@ function pChunaBlock(host,p){
  }));host.append(row);
  const muscles=pChunaTargets();
  if(p.chunaModes.has('근막이완')){
-  host.append(makePart('div','subhead','② 이완한 근육 선택'));
-  if(muscles.length)pChips(host,muscles,p.chunaMuscles,()=>{});
-  else host.append(makePart('div','billtiny','인체도에서 치료부위를 선택하면 대상 근육 목록이 나옵니다. 다른 근육은 아래에서 직접 입력하세요.'));
+   host.append(makePart('div','subhead','근막이완 · 대상 근육'));
+   if(muscles.length)pChips(host,muscles,p.chunaMuscles,()=>{});
+   else host.append(makePart('div','billtiny','인체도에서 부위를 선택하면 근육 후보가 나타납니다.'));
+   chunaChoice(host,'이완 방법 · 한 번 선택','chunaReleaseMethod',CHUNA_RELEASE_METHODS,p);
  }
  if(p.chunaModes.has('MET')){
-  host.append(makePart('div','subhead','③ MET 적용 대상 선택'));
-  if(muscles.length)pChips(host,muscles,p.chunaMET,()=>{});
-  else host.append(makePart('div','billtiny','인체도 선택 후 MET 대상 근육을 선택하거나 아래에서 직접 입력하세요.'));
+   host.append(makePart('div','subhead','MET · 적용 근육'));
+   if(muscles.length)pChips(host,muscles,p.chunaMET,()=>{});
+   else host.append(makePart('div','billtiny','인체도에서 부위를 선택하면 MET 대상이 나타납니다.'));
+   chunaChoice(host,'MET 수행 방법 · 한 번 선택','chunaMETMethod',CHUNA_MET_METHODS,p);
+   chunaChoice(host,'실제 반복 횟수 (선택)','chunaMETReps',['2회','3회','4회','5회'],p);
  }
  if(p.chunaModes.has('관절교정')){
-  host.append(makePart('div','subhead','④ 진찰로 확인한 관절 변위 선택'));
-  const corrections=pChunaCorrectionOptions();if(corrections.length)pChips(host,corrections,p.chunaCorrections,()=>{});
-  else host.append(makePart('div','billtiny','교정 부위·방향을 아래에 직접 입력하세요.'));
-  host.append(makePart('div','billtiny','변위는 실제 평가로 확인된 경우에만 선택하며, 교정 방향·분절은 필요 시 보충하세요.'));
+   host.append(makePart('div','subhead','관절교정 · 평가로 확인한 변위'));
+   const corrections=pChunaCorrectionOptions();if(corrections.length)pChips(host,corrections,p.chunaCorrections,()=>{});
+   chunaChoice(host,'교정 시행 방식 · 한 번 선택','chunaCorrectionMethod',CHUNA_CORRECTION_METHODS,p);
  }
- pField(host,'기타 근육 / MET 세부내용 / 교정 분절·방향 (필요 시)','detail','예: C4/5 우회전 변위 교정, 우측 상부승모근 MET');
- host.append(makePart('div','billtiny gap','근막이완·MET만 시행한 경우 단순추나, 관절교정이 포함된 경우 복잡추나 참고 문구로 표시합니다. 실제 행위정의와 청구요건은 별도 확인하세요.'));
+ // Patient-specific findings are never preset or copied from the previous visit.
+ const evalBox=makePart('div','chuna-eval');
+ evalBox.append(makePart('div','subhead','② 치료 전·후 비교 · 실제 확인한 내용만 선택'));
+ evalBox.append(makePart('div','billtiny','둘 다 평가한 항목만 전후 비교합니다. 기본값은 모두 미평가이며, 치료 후 호전을 자동으로 가정하지 않습니다.'));
+ const motions=chunaMotionOptions();
+ if(motions.length){chunaSelect(evalBox,'재평가 동작 (해당 환자에서 실제 확인)','chunaExamMotion',motions,p);}
+ const compare=makePart('div','chuna-comparison');
+ const before=makePart('div','chuna-compare-col');before.append(makePart('h4','', '치료 전'));
+ const after=makePart('div','chuna-compare-col');after.append(makePart('h4','', '치료 후'));
+ const nrs=Array.from({length:11},(_,i)=>[String(i),'NRS '+i]);
+ chunaSelect(before,'통증 NRS','chunaPreNRS',nrs,p);chunaSelect(after,'통증 NRS','chunaPostNRS',nrs,p);
+ chunaSelect(before,'가동범위','chunaPreROM',CHUNA_ROM_GRADES,p);chunaSelect(after,'가동범위','chunaPostROM',CHUNA_ROM_GRADES,p);
+ chunaSelect(before,'촉진','chunaPrePalp',CHUNA_PALP_GRADES,p);chunaSelect(after,'촉진','chunaPostPalp',CHUNA_PALP_GRADES,p);
+ compare.append(before,after);evalBox.append(compare);host.append(evalBox);
+ pField(host,'기타 시술 내용·평가 (필요할 때만)','detail','예: C4/5 우회전 변위에 대한 교정 방향 및 분절');
+ host.append(makePart('div','billtiny gap','참고: 근막이완·MET·교정을 선택했다고 청구 유형이 자동 확정되지는 않습니다. 실제 행위정의·급여기준과 금일 평가기록을 확인하세요.'));
 }
 function pDrugBlock(host,k,p){
  const panel=makePart('div','p-drug');panel.append(makePart('div','subhead','약침 종류 · 실제 사용한 약액'));const names=['소염약침','봉약침','자하거(태반)약침','기타 약침'];const row=makePart('div','chips');for(const name of names)row.append(choiceButton(name,p.drugName===name,()=>{p.drugName=p.drugName===name?'':name;drawBilling();render()}));panel.append(row);
@@ -591,8 +632,16 @@ function presetCleanItem(x){if(!x||typeof x!=='object'||typeof x.name!=='string'
  const cat=PRESET_CATS.includes(x.category)?x.category:'기타';
  const procedures=presetCleanProcedures(x.procedures);if(!procedures.length)return null;
  return {id:typeof x.id==='string'&&x.id.length<100?x.id:String(Date.now())+'-'+Math.random().toString(36).slice(2,9),name,category:cat,procedures};}
-function savePresets(){try{localStorage.setItem(PRESET_KEY,JSON.stringify({schema:1,presets:procedurePresets}));return true;}catch(e){toast('브라우저 저장 실패. 저장 공간·개인정보 보호 설정을 확인하세요.');return false;}}
-function loadPresets(){try{const data=JSON.parse(localStorage.getItem(PRESET_KEY)||'{}');procedurePresets=Array.isArray(data.presets)?data.presets.slice(0,60).map(presetCleanItem).filter(Boolean):[];}catch(e){procedurePresets=[];toast('세트 저장 데이터가 손상됐습니다. 백업 파일을 가져오세요.');}}
+function savePresets(){try{
+ const previous=localStorage.getItem(PRESET_KEY);
+ if(previous){try{const data=JSON.parse(previous);if(Array.isArray(data.presets))localStorage.setItem(PRESET_BACKUP_KEY,previous);}catch(_){}}
+ localStorage.setItem(PRESET_KEY,JSON.stringify({schema:1,presets:procedurePresets}));return true;
+ }catch(e){toast('브라우저 저장 실패. JSON 백업 파일을 내려받아 보관하세요.');return false;}}
+function loadPresets(){try{
+ let data;const raw=localStorage.getItem(PRESET_KEY);try{data=raw?JSON.parse(raw):null;if(data&&!Array.isArray(data.presets))throw Error('invalid');}catch(_){data=null;}
+ if(!data&&raw){const backup=localStorage.getItem(PRESET_BACKUP_KEY);if(backup){try{data=JSON.parse(backup);if(!Array.isArray(data.presets))data=null;}catch(_){data=null;}if(data)toast('저장된 치료세트 데이터 오류를 발견해 이전 정상본을 복원했습니다.');}}
+ procedurePresets=data?.presets?.slice(0,60).map(presetCleanItem).filter(Boolean)||[];
+ }catch(e){procedurePresets=[];toast('세트 저장 데이터 확인 실패. 백업 JSON을 가져오세요.');}}
 function presetId(){return String(Date.now())+'-'+Math.random().toString(36).slice(2,8);}
 function suggestPresetCategory(){const r=[...state.regions.values()].map(x=>x.region);if(r.includes('shoulder'))return '어깨';if(r.includes('lumbar'))return '허리';if(r.includes('neck'))return '목';if(r.includes('knee'))return '무릎';return '기타';}
 function renderPresets(){const host=$('presetButtons');host.replaceChildren();
@@ -658,9 +707,15 @@ function billingP(){const arr=[];for(const [k,p]of pState){if(P_SPECIAL.has(k)&&
  if(p.points.size||p.pointOther.trim())bits.push((k==='tuja'?'투침 경로: ':P_SPECIAL.has(k)?'적용혈·시술점: ':'혈위·시술점: ')+pointText(p));
  if(p.methods.size&&k!=='chuna')bits.push('술기: '+[...p.methods].join(', '));
  if(k==='chuna'){
-  if(p.chunaMuscles.size&&p.chunaModes.has('근막이완'))bits.push('근막이완: '+[...p.chunaMuscles].join(', '));
-  if(p.chunaMET.size&&p.chunaModes.has('MET'))bits.push('MET: '+[...p.chunaMET].join(', '));
-  if(p.chunaCorrections.size&&p.chunaModes.has('관절교정'))bits.push('관절교정 변위: '+[...p.chunaCorrections].join(', '));
+  const before=[];if(p.chunaPreNRS!=='')before.push('NRS '+p.chunaPreNRS);if(p.chunaPreROM)before.push('가동범위 '+p.chunaPreROM);if(p.chunaPrePalp)before.push('촉진 '+p.chunaPrePalp);
+  const after=[];if(p.chunaPostNRS!=='')after.push('NRS '+p.chunaPostNRS);if(p.chunaPostROM)after.push('가동범위 '+p.chunaPostROM);if(p.chunaPostPalp)after.push('촉진 '+p.chunaPostPalp);
+  if(p.chunaExamMotion&&(before.length||after.length))bits.push('평가 동작: '+p.chunaExamMotion);
+  if(before.length)bits.push('치료 전: '+before.join(' / '));
+  if(p.chunaMuscles.size&&p.chunaModes.has('근막이완'))bits.push('근막이완: '+[...p.chunaMuscles].join(', ')+(p.chunaReleaseMethod?' / '+p.chunaReleaseMethod:''));
+  if(p.chunaMET.size&&p.chunaModes.has('MET'))bits.push('MET: '+[...p.chunaMET].join(', ')+(p.chunaMETMethod?' / '+p.chunaMETMethod:'')+(p.chunaMETReps?' / '+p.chunaMETReps:''));
+  if(p.chunaCorrections.size&&p.chunaModes.has('관절교정'))bits.push('관절교정: '+[...p.chunaCorrections].join(', ')+(p.chunaCorrectionMethod?' / '+p.chunaCorrectionMethod:''));
+  if(after.length)bits.push('치료 후: '+after.join(' / '));
+  if(p.chunaPreNRS!==''&&p.chunaPostNRS!=='')bits.push('NRS 비교: '+p.chunaPreNRS+' → '+p.chunaPostNRS);
  }
  if(k==='pharma'){if(p.drugName)bits.push('약침 종류: '+p.drugName);if(p.drugConcentration)bits.push('약액명: '+sanitize(p.drugConcentration));if(p.drugAmount)bits.push('총 투여량: '+p.drugAmount+'mL');}
  if(p.detail.trim())bits.push('시술 상세: '+sanitize(p.detail));if(k==='electro'&&p.stimFrequency.trim())bits.push('주파수: '+sanitize(p.stimFrequency));
