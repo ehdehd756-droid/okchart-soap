@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v14</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v15</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -204,12 +204,21 @@ if(!back)markup+=`<path class="details" d="M150 157 L150 224 M112 215 Q150 232 1
 else markup+=`<path class="details" d="M150 156 L150 345 M112 190 Q150 210 188 190 M115 241 Q150 258 185 241"/>`;
 for(const [r,s,x,y,title] of HOTSPOTS[view]){const key=r+'|'+s+'|'+view;const selected=state.regions.has(key);markup+=`<g class="hot ${selected?'active':''}" tabindex="0" role="button" aria-label="${title}" aria-pressed="${selected}" data-key="${key}"><title>${title} 선택/해제</title><circle cx="${x}" cy="${y}" r="16"/><text x="${x}" y="${y+4}" text-anchor="middle">+</text></g>`;}markup+='</svg>';return markup;}
 function regionObj(r,s,view){return {region:r,side:s,view,sym:new Set(),pain:new Set(),prov:new Set(),func:new Set(),dx:new Set(),nrs:'',note:'',rom:{},palp:{},tests:{}};}
-function addRegion(r,s,view){const key=r+'|'+s+'|'+view;if(state.regions.has(key))state.regions.delete(key);else state.regions.set(key,regionObj(r,s,view));drawMaps();drawAreaChips();drawRegionEditors();drawPRegionChips();if(state.plan==='billing')drawBilling();renderPresets();render();}
+function addRegion(r,s,view){
+ const key=r+'|'+s+'|'+view;
+ if(state.regions.has(key))state.regions.delete(key);
+ else{
+  if(s==='B'){state.regions.delete(r+'|L|'+view);state.regions.delete(r+'|R|'+view);}
+  if(s==='L'||s==='R')state.regions.delete(r+'|B|'+view);
+  state.regions.set(key,regionObj(r,s,view));
+ }
+ drawMaps();drawAreaChips();updateQuick();drawRegionEditors();drawPRegionChips();if(state.plan==='billing')drawBilling();renderPresets();render();
+}
 function drawMaps(){for(const v of ['front','back']){$(v+'Map').innerHTML=mkSVG(v);$(v+'Map').querySelectorAll('.hot').forEach(h=>{const [r,s,view]=h.dataset.key.split('|');h.onclick=()=>addRegion(r,s,view);h.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();addRegion(r,s,view);}};});}}
 function labelRegion(o){return (o.side==='C'?'':SIDE[o.side]+' ')+SHORT[o.region]+(o.view==='front'?'(앞면)':o.view==='back'?'(뒷면)':'')}
-function drawAreaChips(){const box=$('selectedAreas');box.replaceChildren();for(const [key,o]of state.regions){let b=document.createElement('button');b.className='selection';b.textContent=labelRegion(o);const remove=document.createElement('span');remove.textContent='×';b.append(remove);b.title='선택 해제';b.onclick=()=>{state.regions.delete(key);drawMaps();drawAreaChips();drawRegionEditors();drawPRegionChips();render()};box.append(b);}if(!state.regions.size){const small=document.createElement('span');small.className='micro';small.textContent='인체도에서 위치를 선택하면 부위별 질문이 나타납니다.';box.append(small)}$('regionCount').textContent=state.regions.size+'곳';}
+function drawAreaChips(){const box=$('selectedAreas');box.replaceChildren();for(const [key,o]of state.regions){let b=document.createElement('button');b.className='selection';b.textContent=labelRegion(o);const remove=document.createElement('span');remove.textContent='×';b.append(remove);b.title='선택 해제';b.onclick=()=>{state.regions.delete(key);drawMaps();drawAreaChips();drawRegionEditors();drawPRegionChips();updateQuick();if(state.plan==='billing')drawBilling();render()};box.append(b);}if(!state.regions.size){const small=document.createElement('span');small.className='micro';small.textContent='인체도에서 위치를 선택하면 부위별 질문이 나타납니다.';box.append(small)}$('regionCount').textContent=state.regions.size+'곳';}
 function choiceButton(label,active,onClick,cls='chip'){const b=document.createElement('button');b.type='button';b.className=cls+(active?' active':'');b.textContent=label;b.setAttribute('aria-pressed',String(Boolean(active)));b.onclick=onClick;return b;}
-function drawQuick(){const q=$('quickAreas');for(const [r,s,view,label]of [['neck','C','back','목 뒤'],['back','L','back','좌측 허리'],['back','R','back','우측 허리'],['thoracic','C','back','등'],['head','C','front','머리'],['abdomen','C','front','복부'],['chest','R','front','우측 늑골'],['chest','L','front','좌측 늑골']]){q.append(choiceButton(label,state.regions.has(r+'|'+s+'|'+view),()=>addRegion(r,s,view)));}}
+function drawQuick(){const q=$('quickAreas');for(const [r,s,view,label]of [['neck','C','back','목 뒤'],['back','L','back','좌측 허리'],['back','R','back','우측 허리'],['back','B','back','양측 허리'],['shoulder','B','back','양측 어깨'],['knee','B','front','양측 무릎'],['hip','B','back','양측 둔부'],['ankle','B','front','양측 발목'],['wrist','B','front','양측 손목'],['elbow','B','front','양측 팔꿈치'],['thoracic','C','back','등'],['head','C','front','머리'],['abdomen','C','front','복부'],['chest','R','front','우측 늑골'],['chest','L','front','좌측 늑골']]){q.append(choiceButton(label,state.regions.has(r+'|'+s+'|'+view),()=>addRegion(r,s,view)));}}
 function updateQuick(){const q=$('quickAreas');q.replaceChildren();drawQuick()}
 function checkGroup(title,items,selected,update,extraClass=''){const wrap=document.createElement('div');wrap.className='choicegroup '+extraClass;let h=document.createElement('h4');h.textContent=title;wrap.append(h);const box=document.createElement('div');box.className='chips';for(const t of items)box.append(choiceButton(t,selected.has(t),()=>{if(selected.has(t))selected.delete(t);else selected.add(t);update();refreshChip(box,t,selected.has(t));render();}));wrap.append(box);return wrap;}
 function refreshChip(parent,label,active){const b=Array.from(parent.children).find(x=>x.textContent===label);if(b){b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));}}
@@ -420,7 +429,7 @@ function specialPointPalette(host,k,p){
  if(suggested.length){const group=makePart('div','p-site-key');group.append(makePart('div','p-group-name','주소증에 따른 우선 선택지 ('+suggested.length+'개)'));pChips(group,suggested,p.points,()=>{});panel.append(group);}
  const toggle=makePart('button','tiny',p.expanded?'적용혈 전체 목록 접기':'해당 특수침술 전체 적용혈 보기 ('+meta.all.length+'개)');toggle.type='button';toggle.onclick=()=>{p.expanded=!p.expanded;drawBilling();};panel.append(toggle);
  if(p.expanded){const group=makePart('div','p-site-key');group.append(makePart('div','p-group-name','심평원 적용경혈 참고 목록'));pChips(group,meta.all,p.points,()=>{});panel.append(group);}
- if(p.points.size){const box=makePart('div','point-side-list');box.append(makePart('div','subhead',k==='tuja'?'선택한 투자 경로 · 시술 측 선택':'선택한 적용혈 · 시술 측 선택'));
+ if(p.points.size){pointSideBulk(panel,p);const box=makePart('div','point-side-list');box.append(makePart('div','subhead',k==='tuja'?'선택한 투자 경로 · 시술 측 선택':'선택한 적용혈 · 시술 측 선택'));
   for(const pt of p.points){const item=makePart('div','point-side-item');item.append(makePart('span','',pt));const sel=document.createElement('select');sel.setAttribute('aria-label',pt+' 시술 측');for(const [v,label] of [['','좌우 미기록'],['좌','좌측'],['우','우측'],['양측','양측'],['정중','정중']])sel.add(new Option(label,v));sel.value=p.pointSides[pt]||'';sel.onchange=()=>{p.pointSides[pt]=sel.value;render();};item.append(sel);box.append(item);}panel.append(box);}
  const wrap=makePart('label','field gap',k==='tuja'?'직접 확인한 기타 투자 경로 (선택)':'추가로 확인한 자침 위치 (선택)');const inp=document.createElement('input');inp.placeholder=k==='tuja'?'예: 실제 시술 경혈 A-B':'예: 선택 목록 외 실제 자침 위치';inp.value=p.pointOther||'';inp.oninput=()=>{p.pointOther=inp.value;render()};wrap.append(inp);panel.append(wrap);
  panel.append(makePart('div','billrules',P_SPECIAL_PRECAUTIONS[k]+' 적용혈 선택만으로 해당 특수침술 시행이나 수가 인정이 확정되지 않습니다.'));
@@ -448,6 +457,20 @@ function hasProc(k){return pState.has(k)}
 function makePart(tag,cls='',textValue=''){const n=document.createElement(tag);if(cls)n.className=cls;if(textValue)n.textContent=textValue;return n}
 function pChips(host,options,selected,after){const row=makePart('div','chips');for(const x of options){row.append(choiceButton(x,selected.has(x),()=>{selected.has(x)?selected.delete(x):selected.add(x);after();drawBilling();render();}));}host.append(row);return row}
 function pField(host,label,property,placeholder=''){const wrap=makePart('label','field gap',label);const inp=document.createElement('input');inp.value=property==='count'?(getProc(host.dataset.proc).count||''):getProc(host.dataset.proc)[property]||'';inp.placeholder=placeholder;inp.oninput=()=>{getProc(host.dataset.proc)[property]=inp.value;render()};wrap.append(inp);host.append(wrap)}
+// One-tap laterality for actually selected points; median GV/CV points are excluded.
+function pointIsMidline(pt){return /\((?:GV|CV)\d+\)/.test(pt)||/인당\(|백회\(|대추\(/.test(pt);}
+function pointSideBulk(host,p){
+ const eligible=[...p.points].filter(pt=>!pointIsMidline(pt));
+ if(!eligible.length)return;
+ const row=makePart('div','chips');row.append(makePart('span','micro','선택 경혈 좌우 일괄:'));
+ for(const [label,side] of [['모두 양측','양측'],['모두 좌측','좌'],['모두 우측','우'],['좌우 초기화','']]){
+  row.append(choiceButton(label,!!side&&eligible.every(pt=>p.pointSides[pt]===side),()=>{
+   for(const pt of eligible){if(side)p.pointSides[pt]=side;else delete p.pointSides[pt];}
+   drawBilling();render();
+  }));
+ }
+ host.append(row);
+}
 function procPointPalette(host,k,p){
  const group=makePart('div','acu-action');group.append(makePart('div','subhead','경혈 선택 · 실제 시술 혈위만 선택'));const recommended=pRecommendations();
  const pane=makePart('div','point-hint',recommended.length?'현재 주소증의 참고 경혈 '+recommended.length+'개를 표시합니다. 권장 혈위는 자동 선택되지 않습니다.':'앞에서 통증 부위 또는 소화기·두통 등 주소증을 선택하면 관련 경혈을 추천합니다.');group.append(pane);
@@ -459,7 +482,7 @@ function procPointPalette(host,k,p){
  }
  const tog=makePart('button','tiny',p.expanded?'전체 경혈 목록 접기':'대부위별 전체 경혈 보기');tog.type='button';tog.onclick=()=>{p.expanded=!p.expanded;drawBilling();};group.append(tog);
  if(p.expanded){const catalog=makePart('div','billpointlist');for(const [macro,points] of Object.entries(P_ANATOMY)){catalog.append(makePart('div','subhead',macro+' · 실제 혈위 위치 기준'));pChips(catalog,points,p.points,()=>{});}group.append(catalog);}
- if(p.points.size){group.append(makePart('div','subhead','선택 혈위별 좌우 · 미설정은 기록 생략'));const sides=makePart('div','point-side-list');for(const point of p.points){const entry=makePart('div','point-side-item');entry.append(makePart('span','',point));const sel=document.createElement('select');sel.setAttribute('aria-label',point+' 시술 측');for(const [v,label] of [['','미선택'],['좌','좌측'],['우','우측'],['양측','양측'],['정중','정중']]){const opt=document.createElement('option');opt.value=v;opt.textContent=label;sel.append(opt);}sel.value=p.pointSides[point]||'';sel.onchange=()=>{p.pointSides[point]=sel.value;render();};entry.append(sel);sides.append(entry);}group.append(sides);}
+ if(p.points.size){group.append(makePart('div','subhead','선택 혈위별 좌우 · 미설정은 기록 생략'));pointSideBulk(group,p);const sides=makePart('div','point-side-list');for(const point of p.points){const entry=makePart('div','point-side-item');entry.append(makePart('span','',point));const sel=document.createElement('select');sel.setAttribute('aria-label',point+' 시술 측');for(const [v,label] of [['','미선택'],['좌','좌측'],['우','우측'],['양측','양측'],['정중','정중']]){const opt=document.createElement('option');opt.value=v;opt.textContent=label;sel.append(opt);}sel.value=p.pointSides[point]||'';sel.onchange=()=>{p.pointSides[point]=sel.value;render();};entry.append(sel);sides.append(entry);}group.append(sides);}
  const extra=makePart('label','field gap','그 외 실제 시술 혈위 · 아시혈/비경혈 부위 (추가 입력)');const field=document.createElement('input');field.placeholder='예: 좌측 상부승모근 아시혈 2곳, 우측 신수';field.value=p.pointOther||'';field.oninput=()=>{p.pointOther=field.value;render();};extra.append(field);group.append(extra);host.append(group);
 }
 function pMacroBlock(host,k,p){
@@ -582,8 +605,54 @@ const ICT_SITE_CATALOG={
  '상지':['좌측 상완부','우측 상완부','좌측 주관절부','우측 주관절부','좌측 전완부','우측 전완부','좌측 완관절부','우측 완관절부'],
  '하지':['좌측 고관절부','우측 고관절부','좌측 대퇴부','우측 대퇴부','좌측 슬관절부','우측 슬관절부','좌측 하퇴부','우측 하퇴부','좌측 족관절부','우측 족관절부']
 };
-const ICT_QUICK_SITES=['양측 경항부','양측 상부승모근','좌측 견관절 주위','우측 견관절 주위','요추부','좌측 요부','우측 요부','좌측 천장관절부','우측 천장관절부'];
+const ICT_QUICK_SITES=['양측 경항부','양측 상부승모근','양측 견관절 주위','좌측 견관절 주위','우측 견관절 주위','양측 견갑부','요추부','양측 요부','좌측 요부','우측 요부','양측 천장관절부','좌측 천장관절부','우측 천장관절부'];
 const ICT_REGION_LABEL={neck:'경항부',head:'후두부',shoulder:'견관절 주위',thoracic:'흉추부',back:'요부',hip:'둔부',elbow:'주관절부',wrist:'완관절부',knee:'슬관절부',ankle:'족관절부',chest:'흉곽부'};
+// Bilateral site occupies one clinical location, not two billing units.
+function ictPair(site){
+ const m=/^(좌측|우측|양측) (.+)$/.exec(site);
+ return m?{side:m[1],base:m[2],left:'좌측 '+m[2],right:'우측 '+m[2],both:'양측 '+m[2]}:null;
+}
+function ictSiteChoices(options){
+ const result=[];
+ for(const site of options){const pair=ictPair(site);
+  if(pair&&!result.includes(pair.both))result.push(pair.both);
+  if(!result.includes(site))result.push(site);
+ }
+ return result;
+}
+function normalizedIctSites(sites){
+ const res=new Set(sites);
+ for(const site of sites){const pair=ictPair(site);if(!pair)continue;
+  if(res.has(pair.both)||res.has(pair.left)&&res.has(pair.right)){
+   res.delete(pair.left);res.delete(pair.right);res.add(pair.both);
+  }
+ }
+ return [...res];
+}
+function toggleIctSite(selected,site){
+ const pair=ictPair(site);
+ const normalized=new Set(normalizedIctSites(selected));
+ if(!pair){normalized.has(site)?normalized.delete(site):normalized.add(site);}
+ else if(pair.side==='양측'){
+  normalized.has(pair.both)?normalized.delete(pair.both):normalized.add(pair.both);
+  normalized.delete(pair.left);normalized.delete(pair.right);
+ }else{
+  if(normalized.has(pair.both))normalized.delete(pair.both);
+  normalized.has(site)?normalized.delete(site):normalized.add(site);
+  if(normalized.has(pair.left)&&normalized.has(pair.right)){
+   normalized.delete(pair.left);normalized.delete(pair.right);normalized.add(pair.both);
+  }
+ }
+ selected.clear();for(const x of normalized)selected.add(x);
+}
+function pIctChips(host,options,p){
+ const row=makePart('div','chips');
+ for(const site of ictSiteChoices(options)){
+  const pair=ictPair(site),normalized=new Set(normalizedIctSites(p.sites));
+  row.append(choiceButton(site,normalized.has(site),()=>{toggleIctSite(p.sites,site);drawBilling();render();}));
+ }
+ host.append(row);
+}
 function ictSuggestedSites(){
  const items=[];
  for(const r of state.regions.values()){
@@ -597,17 +666,17 @@ function pICTBlock(host,p){
  host.append(makePart('div','subhead','전극 부착 위치 · 실제 부착한 부위만 선택'));
  const recommended=ictSuggestedSites();
  if(recommended.length){host.append(makePart('div','billtiny','인체도에 선택한 통증 부위 기반 후보 (자동 기록되지 않음)'));
-  pChips(host,recommended,p.sites,()=>{});}
+  pIctChips(host,recommended,p);}
  host.append(makePart('div','billtiny',recommended.length?'그 외 자주 사용하는 위치':'자주 사용하는 부착 위치'));
- pChips(host,ICT_QUICK_SITES.filter(x=>!recommended.includes(x)),p.sites,()=>{});
+ pIctChips(host,ICT_QUICK_SITES.filter(x=>!recommended.includes(x)),p);
  const more=makePart('details','preset-manager');const summary=makePart('summary','','그 외 전극 위치 펼치기');more.append(summary);
  for(const [label,sites]of Object.entries(ICT_SITE_CATALOG)){
-  more.append(makePart('div','subhead',label));pChips(more,sites,p.sites,()=>{});
+  more.append(makePart('div','subhead',label));pIctChips(more,sites,p);
  }host.append(more);
  pField(host,'그림에 없는 부착 위치 (선택)','places','예: 좌측 견갑골 내측연 주위');
  pField(host,'실제 치료 시간 (선택)','count','예: 10분');
  const days=dateDiff();
- host.append(makePart('div','billnav','현재 선택된 부착 위치 '+p.sites.size+'곳'+(p.places.trim()?' + 직접입력':'')+'. 복수 부위 시 실제 붙인 곳만 남기세요.'));
+ host.append(makePart('div','billnav','현재 선택된 부착 위치 '+normalizedIctSites(p.sites).length+'곳'+(p.places.trim()?' + 직접입력':'')+'. 복수 부위 시 실제 붙인 곳만 남기세요.'));
  host.append(makePart('div','billtiny',days===null?'자보 ICT 산정 참고: 사고일부터 17일까지 외래 1일 1회 최대 2부위, 18일부터는 부위와 관계없이 외래 1일 1회. 사고일 입력 후 기간을 확인하세요.':
   days<0?'사고일보다 진료일이 빠릅니다. 날짜를 확인하세요.':days<=17?'자보 ICT: 사고 후 '+days+'일 · 외래 1일 1회 2부위까지 산정 기준 검토':'자보 ICT: 사고 후 '+days+'일 · 18일 이후 외래 부위 불문 1일 1회 산정 기준 검토'));
  host.append(makePart('div','billtiny','보험청구 코드는 OK차트의 자보 한방물리요법 항목에서 확인합니다. 여러 전극 부착 위치를 기재했다고 여러 회를 청구할 수 있는 것은 아닙니다.'));
@@ -744,7 +813,7 @@ function procLabel(k,p){
 }
 function billingP(){const arr=[];for(const [k,p]of pState){if(k==='ict'&&val('insurance')!=='자보')continue;if(P_SPECIAL.has(k)&&(!p.areas.size&&!p.places.trim()&&!p.points.size&&!p.pointOther.trim()||!p.points.size&&!p.pointOther.trim()||k!=='tuja'&&!p.detail.trim()))continue;
  const bits=k==='ict'?[]:recordedPNames(p);
- if(k==='ict'){if(p.sites.size)bits.push('전극 부착 위치: '+[...p.sites].join(', '));if(p.places.trim())bits.push('추가 부착 위치: '+sanitize(p.places));}
+ if(k==='ict'){if(p.sites.size)bits.push('전극 부착 위치: '+normalizedIctSites(p.sites).join(', '));if(p.places.trim())bits.push('추가 부착 위치: '+sanitize(p.places));}
  if(['acu','wet','dry','pharma'].includes(k)&&p.macro.size)bits.push('시술 대부위: '+[...p.macro].join(', '));
  if(p.points.size||p.pointOther.trim())bits.push((k==='tuja'?'투침 경로: ':P_SPECIAL.has(k)?'적용혈·시술점: ':'혈위·시술점: ')+pointText(p));
  if(p.methods.size&&k!=='chuna')bits.push('술기: '+[...p.methods].join(', '));
