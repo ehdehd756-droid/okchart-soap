@@ -998,3 +998,35 @@ patternState.on=$('patternEnabled').checked;const txt=createSOAP();$('output').t
 if(priorState.analyzed&&!priorState.chosenSymptoms.size&&!val('priorTodayChange')&&!state.regions.size&&!state.modules.size)issues.push('이전 차트 분석 후 금일 증상·변화를 아직 확인하지 않았습니다.');
 if(priorState.analyzed&&priorState.hasUncertainDate)issues.push('이전 진료일을 인식하지 못했습니다. 기록 날짜를 직접 확인하세요.');
 if(priorState.analyzed&&priorState.nrs&&val('priorTodayNrs')&&!$('priorNrsVerified').checked)issues.push('이전 NRS와 금일 NRS가 동일 주소증인지 불확실하여 수치 비교를 생략했습니다.');
+if(!state.regions.size&&!state.modules.size&&!val('extraS')&&!(patternState.on&&patternState.sets.inquiry.size)&&!(priorState.analyzed&&(priorState.chosenSymptoms.size||val('priorTodayChange'))))issues.push('주증상을 선택하거나 직접 기재하세요.');
+if(![...state.regions.values()].some(x=>x.dx.size)&&![...state.modules.values()].some(x=>x.dx.size)&&!state.aDiagnosis.size&&!val('extraA')&&!(patternState.on&&patternDiagnosis())&&!(priorState.analyzed&&$('priorDxConfirmed').checked&&priorState.diagnosis))issues.push('진단 또는 임상평가 A를 작성하세요.');
+if(state.mode==='extended'&&(!val('longReason')||!val('longDuration')||!val('longFreq')))issues.push('장기치료 평가에는 치료 반응·기능장애·예상 기간·빈도를 임상적으로 판단해 기록하세요.');
+if(patternState.on){if($('patternClaimRequest').checked){const reasons=patternReadyReasons();issues.push(...reasons.map(x=>'변증기술료: '+x))}else if(!patternDiagnosis()&&Object.values(patternState.sets).some(s=>s.size))issues.push('변증 소견을 입력했으나 변증진단명을 기재하지 않았습니다.');}
+updatePatternStatus();
+if(state.plan==='billing')issues.push(...billingIssues());
+if(diff!==null&&diff<0)issues.push('진료일이 사고일보다 이전입니다.');
+for(const [k,m]of state.modules)if(hasRed(m,k))issues.push(SYS[k].name+': 위험징후 관련 선택 항목이 있습니다. 문진·평가 및 필요 시 의뢰를 검토하세요.');
+const review=$('reviewList');review.replaceChildren();for(const line of issues){const li=document.createElement('li');li.textContent=line;li.className='error';review.append(li);}if(!issues.length){let li=document.createElement('li');li.textContent='작성한 기록을 검토하고 실제 진찰·검사 결과만 남겼는지 확인하세요.';review.append(li);}return txt;}
+function toast(msg){const e=$('toast');e.textContent=msg;e.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.style.display='none',3200)}
+function validate(){if(presetEverApplied&&presetNeedsReview&&state.plan==='billing'){toast('치료세트가 불러와졌지만 금일 시술 확인이 필요합니다. 상단의 확인 버튼을 눌러주세요.');document.getElementById('presetApplySection').scrollIntoView({behavior:'smooth',block:'center'});return false}if(!createSOAP().trim()){toast('SOAP 내용을 먼저 선택하세요.');return false}return true;}
+async function copySOAP(){if(!validate())return;const t=createSOAP();try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(t);else{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.left='-1000px';document.body.append(a);a.select();if(!document.execCommand('copy'))throw Error('copy');a.remove()}toast('SOAP가 복사되었습니다. OK차트에 붙여넣으세요.')}catch(e){toast('복사 권한이 제한됐습니다. 결과 영역을 직접 선택해 복사하세요.')}}
+function downloadTxt(){if(!validate())return;const head=['진료일 '+val('visitDate'),val('insurance')==='자보'&&val('accidentDate')?'사고일 '+val('accidentDate'):''].filter(Boolean).join('\n');const blob=new Blob(['\ufeff'+head+'\n\n'+createSOAP()+'\n'],{type:'text/plain;charset=utf-8'});const uri=URL.createObjectURL(blob),link=document.createElement('a');link.href=uri;link.download='OK차트_SOAP_'+(val('visitDate')||'미지정')+'.txt';link.click();setTimeout(()=>URL.revokeObjectURL(uri),1100);toast('TXT 파일을 저장했습니다. 환자정보로 보호하세요.');}
+function reset(){if(!confirm('현재 입력값을 모두 초기화할까요?'))return;clearPrior();state.regions.clear();state.modules.clear();state.assessment.clear();state.aDiagnosis.clear();patternState.on=false;patternState.diag='';for(const s of Object.values(patternState.sets))s.clear();patternState.mechanisms.clear();for(const key of ['patternEnabled','patternClaimRequest'])$(key).checked=false;drawPattern();state.treatment.clear();state.treatmentAreas.clear();state.next.clear();state.trend='';pState.clear();selectedPresetId='';presetEverApplied=false;presetNeedsReview=false;drawBilling();for(const el of document.querySelectorAll('input:not([type=checkbox]),textarea,select')){el.value=el.id==='visitDate'?today():el.id==='insurance'?'건보':'';}drawMaps();drawAreaChips();drawRegionEditors();drawModules();for(const el of ['aDiagnosisChoices','assessmentChoices','trendChoices','treatChips','nextChips'])$(el).replaceChildren();drawCommon();setPlan('none');setMode('initial');$('presetCategory').value='기타';renderPresets();render();toast('초기화 완료');}
+for(const b of document.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);for(const b of document.querySelectorAll('[data-plan]'))b.onclick=()=>setPlan(b.dataset.plan);for(const el of document.querySelectorAll('input,textarea,select')){el.addEventListener('input',render);el.addEventListener('change',render);}document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();copySOAP()}});$('copyBtn').onclick=copySOAP;$('txtBtn').onclick=downloadTxt;$('resetBtn').onclick=reset;
+// Any user change to an imported P invalidates the one-time actual-treatment confirmation.
+$('insurance').addEventListener('change',()=>{if(state.plan==='billing')drawBilling();render();});
+$('planBilling').addEventListener('click',e=>{if(e.target.closest('button')){if(presetEverApplied){presetNeedsReview=true;queueMicrotask(renderPresets);}}},true);
+$('planBilling').addEventListener('input',()=>{if(presetEverApplied){presetNeedsReview=true;renderPresets();}},true);
+$('planBilling').addEventListener('change',()=>{if(presetEverApplied){presetNeedsReview=true;renderPresets();}},true);
+$('presetConfirmBtn').onclick=confirmTodayPreset;
+$('presetToManager').onclick=()=>{$('presetManager').open=true;$('presetSection').scrollIntoView({behavior:'smooth',block:'center'});};
+$('presetSaveNew').onclick=presetSaveNew;
+$('presetOverwrite').onclick=presetOverwrite;
+$('presetDelete').onclick=presetDelete;
+$('presetExport').onclick=presetExport;
+$('presetImportBtn').onclick=()=>$('presetImportFile').click();
+$('presetImportFile').onchange=presetImport;
+loadPresets();renderPresets();
+drawMaps();drawAreaChips();drawRegionEditors();drawModules();drawCommon();drawPattern();drawBilling();setMode('initial');setPlan('billing');render();
+})();
+</script></body></html>
