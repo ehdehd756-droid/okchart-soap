@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v18</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v19</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -68,10 +68,27 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 @media(max-width:580px){.romrow .rom-feedback{font-size:10px}}
 /* v12: user-owned treatment sets */
 .preset-list{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.preset-one{border:1px solid #99c6be;background:#ecf7f4;border-radius:11px;min-width:120px;padding:9px 12px;text-align:left;color:#195d56;font-weight:800}.preset-one:hover{border-color:#16786d;background:#e0f3ed}.preset-one.active{color:#fff;background:#086e66;border-color:#086e66}.preset-one .preset-cat{font-size:10px;opacity:.85;font-weight:600;display:block}.preset-status{font-size:12px;color:#597276;background:#f6faf9;border:1px solid #deebea;border-radius:9px;padding:9px 11px;margin:9px 0}.preset-status.needs-review{border-color:#d7b77b;background:#fff9e9;color:#825c1e}.preset-manager{border:1px solid #d5e3e1;border-radius:11px;margin-top:14px;padding:10px 12px;background:#fbfdfd}.preset-manager>summary{font-size:12.5px;font-weight:800;color:#315c59;cursor:pointer}.preset-manager .grid{margin-top:10px}.preset-manager button:disabled{opacity:.48}.preset-one:focus-visible{outline:3px solid #c7ece5}
+/* v19: 날짜 선택 유지 + 기간 버튼으로 Onset 작성 */
+.onset-section{border:1px solid #d3e5e0;background:#f8fcfa;border-radius:12px;padding:12px;display:grid;gap:9px}
+.onset-top{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.onset-top .field{width:min(100%,245px)}.onset-top .micro{flex:1 1 220px;padding-bottom:5px}
+.onset-quick-label{font-size:12px;font-weight:800;color:#315f5b}.onset-custom{display:flex;align-items:end;gap:9px;flex-wrap:wrap}.onset-custom .field:first-child{width:145px}.onset-custom .field:nth-child(2){width:115px}.onset-preview{font-size:11.5px;color:#31675e;background:#edf7f3;border:1px solid #d5e8e0;padding:7px 10px;border-radius:8px}
+@media(max-width:580px){.onset-top .field{width:100%}.onset-custom .field:first-child{width:calc(55% - 6px)}.onset-custom .field:nth-child(2){width:calc(45% - 6px)}}
 </style></head><body>
-<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v18</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
+<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v19</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
 <main><div class="pane">
-<section class="section"><div class="section-title"><h2>01. 진료 기본정보</h2><span class="badge" id="dayflag">진료일 입력</span></div><div class="tabs" id="modeTabs"><button class="tab active" type="button" data-mode="initial">초진 SOAP</button><button class="tab" type="button" data-mode="followup">재진 간편</button><button class="tab" type="button" data-mode="weekly">주간 재평가</button><button class="tab" type="button" data-mode="extended">장기치료 평가</button></div><div class="grid three gap"><label class="field">진료 구분<select id="insurance"><option value="건보">건강보험</option><option value="자보">자동차보험</option><option value="일반">일반진료</option></select></label><label class="field">진료일<input type="date" id="visitDate"></label><label class="field hide" id="accidentBox">사고일<input type="date" id="accidentDate"></label></div><div class="grid gap"><label class="field" id="onsetBox">증상 시작일<input type="date" id="onsetDate"></label><label class="field" id="mechanismBox">발생기전<select id="mechanism"><option value="">미선택</option><option>후방 추돌</option><option>정면 충돌</option><option>측면 충돌</option><option>낙상</option><option>과사용·반복작업</option><option>자발성</option><option>기타</option></select></label><label class="field wide">초진 병력·이전 치료·동반질환 / 특이사항<textarea id="history" placeholder="필요한 경우만 입력"></textarea></label></div><div class="summaryline" id="dayhint">날짜와 진료유형을 설정하세요.</div></section>
+<section class="section"><div class="section-title"><h2>01. 진료 기본정보</h2><span class="badge" id="dayflag">진료일 입력</span></div><div class="tabs" id="modeTabs"><button class="tab active" type="button" data-mode="initial">초진 SOAP</button><button class="tab" type="button" data-mode="followup">재진 간편</button><button class="tab" type="button" data-mode="weekly">주간 재평가</button><button class="tab" type="button" data-mode="extended">장기치료 평가</button></div><div class="grid three gap"><label class="field">진료 구분<select id="insurance"><option value="건보">건강보험</option><option value="자보">자동차보험</option><option value="일반">일반진료</option></select></label><label class="field">진료일<input type="date" id="visitDate"></label><label class="field hide" id="accidentBox">사고일<input type="date" id="accidentDate"></label></div><div class="grid gap"><div class="onset-section wide" id="onsetBox">
+  <div class="onset-top">
+    <label class="field">Onset · 기존 날짜 선택<input type="date" id="onsetDate"></label>
+    <span class="micro">정확한 발병일을 알면 날짜를, 대략적인 기간이면 아래 버튼을 선택하세요.</span>
+  </div>
+  <div class="onset-quick-label">빠른 선택</div>
+  <div class="chips" id="onsetQuick" role="group" aria-label="발병 시점 빠른 선택"></div>
+  <div class="onset-custom">
+    <label class="field">그 밖의 기간 (숫자 입력)<input id="onsetCustomCount" type="number" min="1" max="99" step="1" inputmode="numeric" placeholder="예: 8"></label>
+    <label class="field">단위<select id="onsetCustomUnit"><option value="주">주 전</option><option value="개월" selected>개월 전</option><option value="년">년 전</option></select></label>
+  </div>
+  <div class="onset-preview" id="onsetPreview" aria-live="polite">발병 시점 미선택</div>
+</div><label class="field" id="mechanismBox">발생기전<select id="mechanism"><option value="">미선택</option><option>후방 추돌</option><option>정면 충돌</option><option>측면 충돌</option><option>낙상</option><option>과사용·반복작업</option><option>자발성</option><option>기타</option></select></label><label class="field wide">초진 병력·이전 치료·동반질환 / 특이사항<textarea id="history" placeholder="필요한 경우만 입력"></textarea></label></div><div class="summaryline" id="dayhint">날짜와 진료유형을 설정하세요.</div></section>
 
 <section class="section" id="presetApplySection">
  <div class="section-title"><h2>바로 쓰는 치료세트</h2><span class="badge">원클릭 · 데이터 유지</span></div>
@@ -293,6 +310,28 @@ function drawCommon(){const a=$('aDiagnosisChoices');for(const s of CLINICAL_A_C
 function drawPRegionChips(){const box=$('pRegionChips');box.replaceChildren();for(const [key,o]of state.regions){box.append(choiceButton(labelRegion(o),state.treatmentAreas.has(key),()=>{state.treatmentAreas.has(key)?state.treatmentAreas.delete(key):state.treatmentAreas.add(key);drawPRegionChips();render()}));}if(!state.regions.size)box.innerHTML='<span class="micro">먼저 인체도에서 통증부위를 선택하세요.</span>';}
 function setMode(mode){state.mode=mode;for(const b of document.querySelectorAll('[data-mode]')){b.classList.toggle('active',b.dataset.mode===mode);b.setAttribute('aria-pressed',String(b.dataset.mode===mode))}$('onsetBox').classList.toggle('hide',mode!=='initial');$('mechanismBox').classList.toggle('hide',mode!=='initial');$('trendWrap').classList.toggle('hide',mode==='initial');$('longBox').classList.toggle('hide',mode!=='extended');$('resultMode').textContent={initial:'초진',followup:'재진',weekly:'주간',extended:'장기평가'}[mode];render()}
 function setPlan(p){state.plan=p;for(const b of document.querySelectorAll('[data-plan]'))b.classList.toggle('active',b.dataset.plan===p);$('planClick').classList.toggle('hide',p!=='click');$('planBilling').classList.toggle('hide',p!=='billing');$('planManual').classList.toggle('hide',p!=='manual');render()}
+const ONSET_QUICK_VALUES=['1주 전','2주 전','3주 전','1개월 전','2개월 전','3개월 전','6개월 전','1년 전','2년 전','3년 전'];
+let onsetRelative='';
+function onsetText(){return onsetRelative?'약 '+onsetRelative:val('onsetDate');}
+function drawOnsetQuick(){
+ const node=$('onsetQuick');node.replaceChildren();
+ for(const period of ONSET_QUICK_VALUES)node.append(choiceButton(period,onsetRelative===period,()=>{
+   onsetRelative=onsetRelative===period?'':period;
+   $('onsetDate').value='';$('onsetCustomCount').value='';
+   drawOnsetQuick();render();
+ }));
+ const selected=onsetText();$('onsetPreview').textContent=selected?'SOAP 입력: Onset) '+selected:'발병 시점 미선택';
+}
+function updateOnsetCustom(){
+ const raw=val('onsetCustomCount'),n=Number(raw);
+ onsetRelative=raw&&Number.isInteger(n)&&n>=1&&n<=99?n+val('onsetCustomUnit')+' 전':'';
+ if(onsetRelative)$('onsetDate').value='';
+ drawOnsetQuick();render();
+}
+function updateOnsetDate(){
+ if(val('onsetDate')){onsetRelative='';$('onsetCustomCount').value='';}
+ drawOnsetQuick();render();
+}
 function val(id){return String($(id).value||'').trim()};function sanitize(s){return String(s||'').replace(/[\r\n]+/g,'; ').replace(/[ \t]+/g,' ').trim().replace(/[;, ]+$/,'')};function joinSet(s){return [...s].join(', ')}
 function dateDiff(){if(!val('accidentDate')||!val('visitDate'))return null;const x=Date.parse(val('accidentDate')+'T00:00:00'),y=Date.parse(val('visitDate')+'T00:00:00');return Number.isFinite(x)&&Number.isFinite(y)?Math.round((y-x)/86400000):null;}
 function hasRed(m,k){const d=SYS[k];return d.alertWords.some(term=>Object.values(m.groups).some(s=>s.has(term)));}
@@ -1026,10 +1065,10 @@ $('priorClear').onclick=clearPrior;
 $('priorUseP').onclick=usePreviousPlan;
 
 function createSOAP(){const s=[],o=[],a=[],p=[];
-const chief=chiefComplaintSummary();if(chief)s.push('주호소: '+chief);
+const chief=chiefComplaintSummary();if(chief)s.push('주호소: '+chief);if(state.mode==='initial'&&onsetText())s.push('Onset) '+onsetText());
 for(const reg of state.regions.values()){const place=labelRegion(reg);const changes=[];if(reg.sym.size)changes.push(joinSet(reg.sym));if(reg.nrs!=='')changes.push('NRS '+reg.nrs+'/10');if(reg.pain.size)changes.push('양상 '+joinSet(reg.pain));if(reg.prov.size)changes.push('유발 '+joinSet(reg.prov));if(reg.func.size)changes.push('기능제한 '+joinSet(reg.func));if(reg.note)changes.push(sanitize(reg.note));if(changes.length)s.push(place+': '+changes.join('\n    · '));for(const [name,rom]of Object.entries(reg.rom)){const cfg=romRange(name);if(!cfg)continue;const hasDegree=rom.degree!==''&&rom.degree!==undefined;if(!hasDegree)continue;let cleanName=name;if((place.includes('견관절')&&name.startsWith('견관절 '))||(place.includes('주관절')&&name.startsWith('주관절 '))||(place.includes('슬관절')&&name.startsWith('슬관절 ')))cleanName=name.replace(/^[^ ]+ /,'');let txt=place+' '+cleanName;const degree=Number(rom.degree);if(cfg.ext){txt+=degree===0?' 0° (완전신전)':' 신전 제한 '+degree+'°';}else{txt+=' '+degree+'° '+romClassification(name,rom.degree).label;}o.push(txt);}for(const [name,x]of Object.entries(reg.palp))if(x)o.push(place+' '+name+'('+x+')');for(const [name,x]of Object.entries(reg.tests))if(x)o.push(place+' '+name+'('+x+')');if(reg.dx.size)a.push(place+': '+joinSet(reg.dx));}
 for(const [key,m]of state.modules){const d=SYS[key];const ms=[];for(const [group,selected]of Object.entries(m.groups))if(selected.size)ms.push(group+' '+joinSet(selected));if(m.severity!=='')ms.push('NRS '+m.severity+'/10');if(m.detail)ms.push(sanitize(m.detail));if(ms.length)s.push(d.name+': '+ms.join('\n    · '));else s.push(d.name+' (세부 문진 미기록)');for(const obs of m.observed)o.push(d.name+': '+obs);if(m.dx.size)a.push(d.name+': '+joinSet(m.dx));}
-if(state.mode==='initial'){if(val('onsetDate'))s.push('증상시작: '+val('onsetDate'));if(val('mechanism'))s.push('발생기전: '+val('mechanism'));if(val('history'))s.push('병력: '+sanitize(val('history')));}else if(state.trend)s.push('전회 대비 '+state.trend);
+if(state.mode==='initial'){if(val('mechanism'))s.push('발생기전: '+val('mechanism'));if(val('history'))s.push('병력: '+sanitize(val('history')));}else if(state.trend)s.push('전회 대비 '+state.trend);
 if(patternState.on){const pn=patternNotes();s.push(...pn.s);o.push(...pn.o);a.push(...pn.a);}
 if(val('extraS'))s.push(sanitize(val('extraS')));if(val('extraO'))o.push(sanitize(val('extraO')));if(state.aDiagnosis.size)a.push(...state.aDiagnosis);if(state.assessment.size)a.push(joinSet(state.assessment));if(val('extraA'))a.push(sanitize(val('extraA')));
 const pprior=priorSelectedAdvice();s.push(...pprior.s);a.push(...pprior.a);
@@ -1055,7 +1094,7 @@ function toast(msg){const e=$('toast');e.textContent=msg;e.style.display='block'
 function validate(){if(presetEverApplied&&presetNeedsReview&&state.plan==='billing'){toast('치료세트가 불러와졌지만 금일 시술 확인이 필요합니다. 상단의 확인 버튼을 눌러주세요.');document.getElementById('presetApplySection').scrollIntoView({behavior:'smooth',block:'center'});return false}if(!createSOAP().trim()){toast('SOAP 내용을 먼저 선택하세요.');return false}return true;}
 async function copySOAP(){if(!validate())return;const t=createSOAP();try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(t);else{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.left='-1000px';document.body.append(a);a.select();if(!document.execCommand('copy'))throw Error('copy');a.remove()}toast('SOAP가 복사되었습니다. OK차트에 붙여넣으세요.')}catch(e){toast('복사 권한이 제한됐습니다. 결과 영역을 직접 선택해 복사하세요.')}}
 function downloadTxt(){if(!validate())return;const head=['진료일 '+val('visitDate'),val('insurance')==='자보'&&val('accidentDate')?'사고일 '+val('accidentDate'):''].filter(Boolean).join('\n');const blob=new Blob(['\ufeff'+head+'\n\n'+createSOAP()+'\n'],{type:'text/plain;charset=utf-8'});const uri=URL.createObjectURL(blob),link=document.createElement('a');link.href=uri;link.download='OK차트_SOAP_'+(val('visitDate')||'미지정')+'.txt';link.click();setTimeout(()=>URL.revokeObjectURL(uri),1100);toast('TXT 파일을 저장했습니다. 환자정보로 보호하세요.');}
-function reset(){if(!confirm('현재 입력값을 모두 초기화할까요?'))return;clearPrior();state.regions.clear();state.modules.clear();state.assessment.clear();state.aDiagnosis.clear();patternState.on=false;patternState.diag='';for(const s of Object.values(patternState.sets))s.clear();patternState.mechanisms.clear();for(const key of ['patternEnabled','patternClaimRequest'])$(key).checked=false;drawPattern();state.treatment.clear();state.treatmentAreas.clear();state.next.clear();state.trend='';pState.clear();selectedPresetId='';presetEverApplied=false;presetNeedsReview=false;drawBilling();for(const el of document.querySelectorAll('input:not([type=checkbox]),textarea,select')){el.value=el.id==='visitDate'?today():el.id==='insurance'?'건보':'';}drawMaps();drawAreaChips();drawRegionEditors();drawModules();for(const el of ['aDiagnosisChoices','assessmentChoices','trendChoices','treatChips','nextChips'])$(el).replaceChildren();drawCommon();setPlan('none');setMode('initial');$('presetCategory').value='기타';renderPresets();render();toast('초기화 완료');}
+function reset(){if(!confirm('현재 입력값을 모두 초기화할까요?'))return;onsetRelative='';clearPrior();state.regions.clear();state.modules.clear();state.assessment.clear();state.aDiagnosis.clear();patternState.on=false;patternState.diag='';for(const s of Object.values(patternState.sets))s.clear();patternState.mechanisms.clear();for(const key of ['patternEnabled','patternClaimRequest'])$(key).checked=false;drawPattern();state.treatment.clear();state.treatmentAreas.clear();state.next.clear();state.trend='';pState.clear();selectedPresetId='';presetEverApplied=false;presetNeedsReview=false;drawBilling();for(const el of document.querySelectorAll('input:not([type=checkbox]),textarea,select')){el.value=el.id==='visitDate'?today():el.id==='insurance'?'건보':'';}drawMaps();drawAreaChips();drawRegionEditors();drawModules();for(const el of ['aDiagnosisChoices','assessmentChoices','trendChoices','treatChips','nextChips'])$(el).replaceChildren();drawCommon();setPlan('none');setMode('initial');$('presetCategory').value='기타';$('onsetCustomUnit').value='개월';drawOnsetQuick();renderPresets();render();toast('초기화 완료');}
 for(const b of document.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);for(const b of document.querySelectorAll('[data-plan]'))b.onclick=()=>setPlan(b.dataset.plan);for(const el of document.querySelectorAll('input,textarea,select')){el.addEventListener('input',render);el.addEventListener('change',render);}document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();copySOAP()}});$('copyBtn').onclick=copySOAP;$('txtBtn').onclick=downloadTxt;$('resetBtn').onclick=reset;
 // Any user change to an imported P invalidates the one-time actual-treatment confirmation.
 $('insurance').addEventListener('change',()=>{if(state.plan==='billing')drawBilling();render();});
@@ -1070,6 +1109,11 @@ $('presetDelete').onclick=presetDelete;
 $('presetExport').onclick=presetExport;
 $('presetImportBtn').onclick=()=>$('presetImportFile').click();
 $('presetImportFile').onchange=presetImport;
+$('onsetDate').addEventListener('input',updateOnsetDate);
+$('onsetDate').addEventListener('change',updateOnsetDate);
+$('onsetCustomCount').addEventListener('input',updateOnsetCustom);
+$('onsetCustomUnit').addEventListener('change',updateOnsetCustom);
+drawOnsetQuick();
 loadPresets();renderPresets();
 drawMaps();drawAreaChips();drawRegionEditors();drawModules();drawCommon();drawPattern();drawBilling();setMode('initial');setPlan('billing');render();
 })();
