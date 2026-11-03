@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v20</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v21</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -106,7 +106,7 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 .quickv-editgroup .chip{font-size:10.5px;padding:5px 7px}
 @media(max-width:650px){.quickv-group{grid-template-columns:1fr;gap:0}.quickv-grid,.quickv-editgrid{grid-template-columns:1fr}.quickv-card{flex:1 0 22%;min-width:70px}.quickv-main{padding:10px}}
 </style></head><body>
-<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v20</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
+<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v21</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
 <main><div class="pane">
 <section class="section"><div class="section-title"><h2>01. 진료 기본정보</h2><span class="badge" id="dayflag">진료일 입력</span></div><div class="tabs" id="modeTabs"><button class="tab active" type="button" data-mode="initial">초진 SOAP</button><button class="tab" type="button" data-mode="followup">재진 간편</button><button class="tab" type="button" data-mode="weekly">주간 재평가</button><button class="tab" type="button" data-mode="extended">장기치료 평가</button></div><div class="grid three gap"><label class="field">진료 구분<select id="insurance"><option value="건보">건강보험</option><option value="자보">자동차보험</option><option value="일반">일반진료</option></select></label><label class="field">진료일<input type="date" id="visitDate"></label><label class="field hide" id="accidentBox">사고일<input type="date" id="accidentDate"></label></div><div class="grid gap"><div class="onset-section wide" id="onsetBox">
   <div class="onset-top">
@@ -124,7 +124,7 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 
 
 <section class="section quickv-section" id="quickVisitSection">
- <div class="section-title"><h2>빠른 진료세트 · S / O / A</h2><span class="badge">v20 · 부위별 기본 설정</span></div>
+ <div class="section-title"><h2>빠른 진료세트 · S / O / A</h2><span class="badge">v21 · 부위별 기본 설정</span></div>
  <p class="hint">부위를 고르면 다빈도 문진·ROM·검사만 보입니다. <strong>항목을 불러오는 것과 검사 결과 기록은 별개입니다.</strong> 확인한 결과만 누르세요.</p>
  <div id="quickTemplateCards" class="quickv-cards"></div>
  <div id="quickVisitEditor"><p class="micro">목·허리·어깨 등 위 진료 부위를 선택하세요.</p></div>
@@ -134,7 +134,6 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
  <p class="hint">어깨·허리 등 직접 등록한 루틴을 클릭하면 아래 P 상세 시술기록에 한 번에 불러옵니다.</p>
  <div id="presetButtons" class="preset-list"><span class="micro">등록된 세트가 없습니다.</span></div>
  <div class="preset-status" id="presetStatus" aria-live="polite">사용할 치료세트를 선택하거나 새로 저장하세요.</div>
- <div class="row" id="presetConfirmRow" style="display:none"><button type="button" id="presetConfirmBtn" class="btn primary">금일 실제 시술 확인 → P 복사 허용</button><span class="micro">시행하지 않은 시술은 먼저 제거하세요.</span></div>
  <div class="row gap"><button type="button" id="presetToManager" class="tiny">+ 새 치료세트 등록 / 관리</button></div>
 </section>
 <section class="section" id="priorSection">
@@ -343,7 +342,7 @@ function quickDrawEditor(){const root=$('quickVisitEditor');if(!root)return;root
  const opts=[['','치료세트 미선택'],...matching.map(x=>[x.id,x.category+' · '+x.name])],sel=selectEl(opts,selectedId, v=>{const original=quickCustom[region]||{...QUICK_TEMPLATES[region]};quickCustom[region]=quickSafeProfile(region,{...original,pPresetId:v});quickSave();},'연결할 P 치료세트');
  const apply=makePart('button','btn primary','선택한 P 치료세트 불러오기');apply.type='button';apply.disabled=!matching.length;apply.onclick=()=>{if(!sel.value){toast('저장된 치료세트를 먼저 선택하세요.');return;}applyPreset(sel.value);};
  footer.append(sel,apply);if(!matching.length)footer.append(makePart('span','quickv-mini','등록된 P 세트 없음 · 아래에서 먼저 치료세트 저장'));wrap.append(footer);
- wrap.append(makePart('p','quickv-mini','불러온 P는 금일 실제 시술 확인 후 복사할 수 있습니다. 검사 수치·음성/양성 소견은 이 세트에 저장하지 않습니다.'));
+ wrap.append(makePart('p','quickv-mini','P 치료세트를 불러오면 즉시 SOAP에 반영됩니다. 실제 시행하지 않은 시술은 P에서 제외하세요. 검사 수치·음성/양성 소견은 이 세트에 저장하지 않습니다.'));
  const manage=document.createElement('details');manage.className='quickv-manage';const summary=document.createElement('summary');summary.textContent='이 부위의 빠른 버튼 구성 수정 · 저장 / 초기화 / 백업';manage.append(summary);
  const editGrid=makePart('div','quickv-editgrid');
  for(const field of QUICK_FIELDS){const item=makePart('div','quickv-editgroup'),head=makePart('strong','',QUICK_FIELD_LABELS[field]),list=makePart('div','quickv-controls');
@@ -716,8 +715,6 @@ const PRESET_TEXT=['drugName','drugConcentration','cuppingKind','chunaKind','chu
 const PRESET_CATS=['어깨','허리','목','무릎','팔·손','고관절·하지','소화기·내과','기타'];
 let procedurePresets=[];
 let selectedPresetId='';
-let presetNeedsReview=false;
-let presetEverApplied=false;
 
 function getProc(k){if(!pState.has(k))pState.set(k,{points:new Set(),pointSides:{},areas:new Set(),macro:new Set(),methods:new Set(),muscleTechs:new Set(),chunaModes:new Set(),chunaMuscles:new Set(),chunaMET:new Set(),chunaCorrections:new Set(),sites:new Set(),places:'',result:'',count:k==='moxaDirect'?'5장':'',detail:'',confirmed:false,chunaKind:'',expanded:false,drugName:k==='pharma'?'소염약침':'',drugAmount:k==='pharma'?'1':'',drugConcentration:'',stimFrequency:'',stimMode:'',cuppingKind:'',pointOther:'',chunaReleaseMethod:'',chunaMETMethod:'',chunaMETReps:'',chunaCorrectionMethod:'',chunaExamMotion:'',chunaPreNRS:'',chunaPostNRS:'',chunaPreROM:'',chunaPostROM:'',chunaPrePalp:'',chunaPostPalp:''});return pState.get(k)}
 function hasProc(k){return pState.has(k)}
@@ -1034,28 +1031,17 @@ function renderPresets(){const host=$('presetButtons');host.replaceChildren();
  for(const preset of order){const btn=makePart('button','preset-one'+(selectedPresetId===preset.id?' active':''));btn.type='button';btn.append(makePart('span','preset-cat',preset.category));btn.append(document.createTextNode(preset.name));btn.title='클릭하면 이 세트를 P 초안으로 불러옵니다';btn.onclick=()=>applyPreset(preset.id);host.append(btn);}
  const hasSaved=procedurePresets.some(x=>x.id===selectedPresetId);
  $('presetOverwrite').disabled=!hasSaved;$('presetDelete').disabled=!hasSaved;
- $('presetConfirmRow').style.display=presetEverApplied&&presetNeedsReview?'flex':'none';
- const st=$('presetStatus');st.classList.toggle('needs-review',presetEverApplied&&presetNeedsReview);
- if(presetEverApplied&&presetNeedsReview)st.textContent='세트 적용됨 · 오늘 실제 시술과 일치하는지 확인한 뒤 한 번만 「금일 시술 확인」을 눌러주세요. 미확인 상태에서는 SOAP 복사를 막습니다.';
- else if(presetEverApplied)st.textContent='당일 시술 확인 완료 · 수정사항이 있다면 P를 수정하세요. 수정 후에는 다시 확인합니다.';
- else st.textContent=procedurePresets.length?'저장된 세트 버튼을 누르면 기존 P가 교체되고 선택한 시술이 한 번에 불러와집니다.':'첫 세트 등록: 아래 상세 P에서 시술을 고른 다음 이곳에서 이름을 적고 저장하세요.';
+ const st=$('presetStatus');st.classList.remove('needs-review');
+ const applied=procedurePresets.find(x=>x.id===selectedPresetId);
+ st.textContent=applied?'「'+applied.name+'」 적용됨 · P에 바로 반영되었습니다. 실제 시행하지 않은 항목은 제외하고 바로 SOAP를 복사하세요.':procedurePresets.length?'세트 버튼을 누르면 기존 P가 교체되어 즉시 SOAP에 반영됩니다.':'첫 세트 등록: 아래 상세 P에서 시술을 고른 다음 이곳에서 이름을 적고 저장하세요.';
 }
 function applyPreset(id){const preset=procedurePresets.find(x=>x.id===id);if(!preset)return;
  if(pState.size&&!window.confirm('현재 선택된 P 시술을 '+preset.name+' 세트로 교체할까요?'))return;
  pState.clear();for(const data of preset.procedures){const p=getProc(data.key);for(const f of PRESET_SETS)p[f]=new Set(data[f]);p.pointSides={...data.pointSides};for(const f of PRESET_TEXT)p[f]=data[f];p.areas=new Set();p.places='';p.pointOther='';p.result='';p.detail='';p.count=data.key==='moxaDirect'?'5장':'';p.drugAmount=data.key==='pharma'?'1':'';p.drugName=data.key==='pharma'?(p.drugName||'소염약침'):p.drugName;p.stimFrequency='';p.stimMode='';p.confirmed=false;}
- selectedPresetId=preset.id;presetEverApplied=true;presetNeedsReview=true;
+ selectedPresetId=preset.id;
  $('presetName').value=preset.name;$('presetCategory').value=preset.category;
- setPlan('billing');drawBilling();render();renderPresets();toast('「'+preset.name+'」 불러옴 · 금일 시술 확인 필요');
+ setPlan('billing');drawBilling();render();renderPresets();toast('「'+preset.name+'」 적용 완료 · 바로 복사 가능');
 }
-function confirmTodayPreset(){if(!presetEverApplied)return;
- if(!pState.size){toast('오늘 시행한 시술을 먼저 선택하세요.');return;}
- // Review missing clinical particulars without forcing every optional billing field.
- const missing=billingIssues();if(missing.length){
-  const st=$('presetStatus');st.classList.add('needs-review');st.textContent='P 보완 필요 ('+missing.length+'건): '+missing.slice(0,2).join(' / ')+' · 아래 상세 P를 수정해 주세요.';
-  $('planBilling').scrollIntoView({behavior:'smooth',block:'start'});toast('시술 부위·혈위·술기 등 부족한 내용을 먼저 선택해 주세요.');return;
- }
- presetNeedsReview=false;renderPresets();render();toast('당일 시술확인을 표시했습니다.');}
-function invalidatePresetReview(){if(presetEverApplied&&!presetNeedsReview){presetNeedsReview=true;renderPresets();}}
 function presetSaveNew(){const name=safePresetLabel($('presetName').value,32),procedures=presetCurrentProcedures();if(!name){toast('세트 이름을 적어주세요.');$('presetName').focus();return;}if(!procedures.length){toast('먼저 아래에서 침·부항·추나 등 P 시술을 선택하세요.');return;}
  if(procedurePresets.some(p=>p.name===name)){toast('같은 이름이 있습니다. 다른 이름으로 저장하거나 덮어쓰기를 사용하세요.');return;}
  if(procedurePresets.length>=60){toast('세트는 최대 60개까지 저장할 수 있습니다.');return;}
@@ -1260,17 +1246,12 @@ if(diff!==null&&diff<0)issues.push('진료일이 사고일보다 이전입니다
 for(const [k,m]of state.modules)if(hasRed(m,k))issues.push(SYS[k].name+': 위험징후 관련 선택 항목이 있습니다. 문진·평가 및 필요 시 의뢰를 검토하세요.');
 const review=$('reviewList');review.replaceChildren();for(const line of issues){const li=document.createElement('li');li.textContent=line;li.className='error';review.append(li);}if(!issues.length){let li=document.createElement('li');li.textContent='작성한 기록을 검토하고 실제 진찰·검사 결과만 남겼는지 확인하세요.';review.append(li);}return txt;}
 function toast(msg){const e=$('toast');e.textContent=msg;e.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.style.display='none',3200)}
-function validate(){if(presetEverApplied&&presetNeedsReview&&state.plan==='billing'){toast('치료세트가 불러와졌지만 금일 시술 확인이 필요합니다. 상단의 확인 버튼을 눌러주세요.');document.getElementById('presetApplySection').scrollIntoView({behavior:'smooth',block:'center'});return false}if(!createSOAP().trim()){toast('SOAP 내용을 먼저 선택하세요.');return false}return true;}
+function validate(){if(!createSOAP().trim()){toast('SOAP 내용을 먼저 선택하세요.');return false}return true;}
 async function copySOAP(){if(!validate())return;const t=createSOAP();try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(t);else{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.left='-1000px';document.body.append(a);a.select();if(!document.execCommand('copy'))throw Error('copy');a.remove()}toast('SOAP가 복사되었습니다. OK차트에 붙여넣으세요.')}catch(e){toast('복사 권한이 제한됐습니다. 결과 영역을 직접 선택해 복사하세요.')}}
 function downloadTxt(){if(!validate())return;const head=['진료일 '+val('visitDate'),val('insurance')==='자보'&&val('accidentDate')?'사고일 '+val('accidentDate'):''].filter(Boolean).join('\n');const blob=new Blob(['\ufeff'+head+'\n\n'+createSOAP()+'\n'],{type:'text/plain;charset=utf-8'});const uri=URL.createObjectURL(blob),link=document.createElement('a');link.href=uri;link.download='OK차트_SOAP_'+(val('visitDate')||'미지정')+'.txt';link.click();setTimeout(()=>URL.revokeObjectURL(uri),1100);toast('TXT 파일을 저장했습니다. 환자정보로 보호하세요.');}
-function reset(){if(!confirm('현재 입력값을 모두 초기화할까요?'))return;quickFocus={region:'',side:''};onsetRelative='';clearPrior();state.regions.clear();state.modules.clear();state.assessment.clear();state.aDiagnosis.clear();patternState.on=false;patternState.diag='';for(const s of Object.values(patternState.sets))s.clear();patternState.mechanisms.clear();for(const key of ['patternEnabled','patternClaimRequest'])$(key).checked=false;drawPattern();state.treatment.clear();state.treatmentAreas.clear();state.next.clear();state.trend='';pState.clear();selectedPresetId='';presetEverApplied=false;presetNeedsReview=false;drawBilling();for(const el of document.querySelectorAll('input:not([type=checkbox]),textarea,select')){el.value=el.id==='visitDate'?today():el.id==='insurance'?'건보':'';}drawMaps();drawAreaChips();drawRegionEditors();drawModules();for(const el of ['aDiagnosisChoices','assessmentChoices','trendChoices','treatChips','nextChips'])$(el).replaceChildren();drawCommon();setPlan('none');setMode('initial');$('presetCategory').value='기타';$('onsetCustomUnit').value='개월';drawOnsetQuick();renderPresets();quickDrawCards();quickDrawEditor();render();toast('초기화 완료');}
+function reset(){if(!confirm('현재 입력값을 모두 초기화할까요?'))return;quickFocus={region:'',side:''};onsetRelative='';clearPrior();state.regions.clear();state.modules.clear();state.assessment.clear();state.aDiagnosis.clear();patternState.on=false;patternState.diag='';for(const s of Object.values(patternState.sets))s.clear();patternState.mechanisms.clear();for(const key of ['patternEnabled','patternClaimRequest'])$(key).checked=false;drawPattern();state.treatment.clear();state.treatmentAreas.clear();state.next.clear();state.trend='';pState.clear();selectedPresetId='';drawBilling();for(const el of document.querySelectorAll('input:not([type=checkbox]),textarea,select')){el.value=el.id==='visitDate'?today():el.id==='insurance'?'건보':'';}drawMaps();drawAreaChips();drawRegionEditors();drawModules();for(const el of ['aDiagnosisChoices','assessmentChoices','trendChoices','treatChips','nextChips'])$(el).replaceChildren();drawCommon();setPlan('none');setMode('initial');$('presetCategory').value='기타';$('onsetCustomUnit').value='개월';drawOnsetQuick();renderPresets();quickDrawCards();quickDrawEditor();render();toast('초기화 완료');}
 for(const b of document.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);for(const b of document.querySelectorAll('[data-plan]'))b.onclick=()=>setPlan(b.dataset.plan);for(const el of document.querySelectorAll('input,textarea,select')){el.addEventListener('input',render);el.addEventListener('change',render);}document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();copySOAP()}});$('copyBtn').onclick=copySOAP;$('txtBtn').onclick=downloadTxt;$('resetBtn').onclick=reset;
-// Any user change to an imported P invalidates the one-time actual-treatment confirmation.
 $('insurance').addEventListener('change',()=>{if(state.plan==='billing')drawBilling();render();});
-$('planBilling').addEventListener('click',e=>{if(e.target.closest('button')){if(presetEverApplied){presetNeedsReview=true;queueMicrotask(renderPresets);}}},true);
-$('planBilling').addEventListener('input',()=>{if(presetEverApplied){presetNeedsReview=true;renderPresets();}},true);
-$('planBilling').addEventListener('change',()=>{if(presetEverApplied){presetNeedsReview=true;renderPresets();}},true);
-$('presetConfirmBtn').onclick=confirmTodayPreset;
 $('presetToManager').onclick=()=>{$('presetManager').open=true;$('presetSection').scrollIntoView({behavior:'smooth',block:'center'});};
 $('presetSaveNew').onclick=presetSaveNew;
 $('presetOverwrite').onclick=presetOverwrite;
