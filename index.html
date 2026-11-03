@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v19</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v20</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -73,8 +73,40 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 .onset-top{display:flex;align-items:end;gap:12px;flex-wrap:wrap}.onset-top .field{width:min(100%,245px)}.onset-top .micro{flex:1 1 220px;padding-bottom:5px}
 .onset-quick-label{font-size:12px;font-weight:800;color:#315f5b}.onset-custom{display:flex;align-items:end;gap:9px;flex-wrap:wrap}.onset-custom .field:first-child{width:145px}.onset-custom .field:nth-child(2){width:115px}.onset-preview{font-size:11.5px;color:#31675e;background:#edf7f3;border:1px solid #d5e8e0;padding:7px 10px;border-radius:8px}
 @media(max-width:580px){.onset-top .field{width:100%}.onset-custom .field:first-child{width:calc(55% - 6px)}.onset-custom .field:nth-child(2){width:calc(45% - 6px)}}
+
+/* v20: 빠른 진료세트 - 선택형 문진/진찰, 검사결과는 절대 자동기록하지 않음 */
+.quickv-section{border-color:#b4d6d0;background:linear-gradient(160deg,#f8fcfb 0%,#fff 55%)}
+.quickv-cards{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.quickv-card{border:1px solid #bcd5d0;background:#fff;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:800;min-width:78px;text-align:center;cursor:pointer}
+.quickv-card.active{background:#096b62;color:#fff;border-color:#096b62}
+.quickv-main{border:1px solid #d6e6e2;border-radius:12px;padding:12px;margin-top:12px;background:#fff}
+.quickv-title{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap;margin-bottom:9px}
+.quickv-title h3{margin:0;font-size:15px;color:#245853}
+.quickv-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.quickv-section-label{font-size:12px;color:#0c655b;font-weight:850;margin:14px 0 6px;border-bottom:1px solid #e2efec;padding-bottom:6px}
+.quickv-group{margin:9px 0;display:grid;grid-template-columns:92px 1fr;gap:7px;align-items:start}
+.quickv-group-title{font-size:11.5px;color:#506c6b;font-weight:700;padding-top:6px}
+.quickv-controls{display:flex;flex-wrap:wrap;gap:5px}
+.quickv-controls .chip{font-size:11.5px;padding:7px 9px}
+.quickv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.quickv-exam{padding:8px 9px;border:1px solid #dce9e6;border-radius:9px;background:#fafdfc;min-width:0}
+.quickv-exam b{display:block;font-size:11.5px;margin-bottom:5px;color:#3d6060}
+.quickv-exam select{width:100%;min-width:0;border:1px solid #bfcfcb;border-radius:7px;padding:7px;font-size:12px;background:#fff}
+.quickv-exam .quickv-controls{gap:4px}
+.quickv-exam .tiny{font-size:11px;padding:6px 8px}
+.quickv-mini{color:#647a78;font-size:11px;line-height:1.6}
+.quickv-status{font-size:11px;background:#eff7f4;color:#27695f;border-radius:7px;padding:8px 10px;margin-top:8px}
+.quickv-foot{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px}
+.quickv-foot select{min-width:190px;max-width:100%;border:1px solid #bfcfcb;border-radius:8px;background:#fff;padding:7px;font-size:12px}
+.quickv-manage{margin-top:14px;border:1px solid #d9e6e3;padding:10px;border-radius:9px;background:#f8fcfa}
+.quickv-manage>summary{font-weight:800;cursor:pointer;font-size:12px;color:#3b6660}
+.quickv-editgrid{display:grid;gap:8px;grid-template-columns:1fr 1fr;margin-top:10px}
+.quickv-editgroup{border:1px solid #e2ecea;border-radius:8px;padding:8px;min-width:0;background:white}
+.quickv-editgroup strong{font-size:11px;color:#3f6260;display:block;margin-bottom:6px}
+.quickv-editgroup .chip{font-size:10.5px;padding:5px 7px}
+@media(max-width:650px){.quickv-group{grid-template-columns:1fr;gap:0}.quickv-grid,.quickv-editgrid{grid-template-columns:1fr}.quickv-card{flex:1 0 22%;min-width:70px}.quickv-main{padding:10px}}
 </style></head><body>
-<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v19</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
+<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v20</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
 <main><div class="pane">
 <section class="section"><div class="section-title"><h2>01. 진료 기본정보</h2><span class="badge" id="dayflag">진료일 입력</span></div><div class="tabs" id="modeTabs"><button class="tab active" type="button" data-mode="initial">초진 SOAP</button><button class="tab" type="button" data-mode="followup">재진 간편</button><button class="tab" type="button" data-mode="weekly">주간 재평가</button><button class="tab" type="button" data-mode="extended">장기치료 평가</button></div><div class="grid three gap"><label class="field">진료 구분<select id="insurance"><option value="건보">건강보험</option><option value="자보">자동차보험</option><option value="일반">일반진료</option></select></label><label class="field">진료일<input type="date" id="visitDate"></label><label class="field hide" id="accidentBox">사고일<input type="date" id="accidentDate"></label></div><div class="grid gap"><div class="onset-section wide" id="onsetBox">
   <div class="onset-top">
@@ -90,6 +122,13 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
   <div class="onset-preview" id="onsetPreview" aria-live="polite">발병 시점 미선택</div>
 </div><label class="field" id="mechanismBox">발생기전<select id="mechanism"><option value="">미선택</option><option>후방 추돌</option><option>정면 충돌</option><option>측면 충돌</option><option>낙상</option><option>과사용·반복작업</option><option>자발성</option><option>기타</option></select></label><label class="field wide">초진 병력·이전 치료·동반질환 / 특이사항<textarea id="history" placeholder="필요한 경우만 입력"></textarea></label></div><div class="summaryline" id="dayhint">날짜와 진료유형을 설정하세요.</div></section>
 
+
+<section class="section quickv-section" id="quickVisitSection">
+ <div class="section-title"><h2>빠른 진료세트 · S / O / A</h2><span class="badge">v20 · 부위별 기본 설정</span></div>
+ <p class="hint">부위를 고르면 다빈도 문진·ROM·검사만 보입니다. <strong>항목을 불러오는 것과 검사 결과 기록은 별개입니다.</strong> 확인한 결과만 누르세요.</p>
+ <div id="quickTemplateCards" class="quickv-cards"></div>
+ <div id="quickVisitEditor"><p class="micro">목·허리·어깨 등 위 진료 부위를 선택하세요.</p></div>
+</section>
 <section class="section" id="presetApplySection">
  <div class="section-title"><h2>바로 쓰는 치료세트</h2><span class="badge">원클릭 · 데이터 유지</span></div>
  <p class="hint">어깨·허리 등 직접 등록한 루틴을 클릭하면 아래 P 상세 시술기록에 한 번에 불러옵니다.</p>
@@ -99,7 +138,7 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
  <div class="row gap"><button type="button" id="presetToManager" class="tiny">+ 새 치료세트 등록 / 관리</button></div>
 </section>
 <section class="section" id="priorSection">
- <div class="section-title"><h2>01-1. 기존 OK차트 분석 → 재진 자동 초안</h2><span class="badge">v7 신규</span></div>
+ <div class="section-title"><h2>01-2. 기존 OK차트 분석 → 재진 자동 초안</h2><span class="badge">v7 신규</span></div>
  <p class="hint">과거 차트를 그대로 붙여넣으면 증상·진단·NRS·ROM·검사·치료 경과를 추출합니다. 여러 날짜 기록을 한 번에 넣어도 됩니다. <strong>이전 진찰 결과를 오늘 결과로 자동 복제하지 않습니다.</strong></p>
  <div class="priorbox">
   <label class="field">기존 환자 차트 붙여넣기
@@ -197,6 +236,136 @@ const ROM_META={
 DATA.chest={label:'흉곽·늑골',s:['흉곽 통증','늑골부 통증','심호흡 시 통증','몸통 회전 시 통증'],pain:['쑤심','당김','압박 시 통증','날카로운 통증'],prov:['심호흡','기침','몸통 회전','상지 거상'],func:['호흡','수면','옷 갈아입기','운동'],rom:[],palp:['흉골연','늑간부','늑골척추관절부','대흉근'],tests:['흉곽 압박검사'],dx:['흉곽부 염좌 및 긴장 의심','늑골 주변 근육통 의심'],areas:['늑골부','흉곽 전면','흉곽 후면']};
 DATA.thoracic={label:'등·흉추',s:['배부 통증','흉추부 강직','견갑간 통증'],pain:['뻐근함','당김','쑤심'],prov:['몸통 회전','장시간 앉기','심호흡'],func:['장시간 앉기','업무·가사','수면'],rom:['요추 좌회전','요추 우회전'],palp:['흉추기립근','능형근','견갑내측연','승모근 중부'],tests:[],dx:['흉추부 염좌 및 긴장','배부 근막통증'],areas:['흉추부','견갑간부']};
 DATA.abdomen={label:'복부 통증',s:['복통','상복부 통증','하복부 통증','복부 팽만','복부 압통감'],pain:['쥐어짜는 통증','둔통','찌르는 통증','산통'],prov:['식후','공복','배변 전후','체위변경'],func:['식사','수면','업무·가사'],rom:[],palp:['상복부','우상복부','좌상복부','우하복부','좌하복부'],tests:['반발압통','복부 강직'],dx:['복통(원인 평가 필요)'],areas:['상복부','하복부']};
+
+/* v20 지역별 기본 세트: 선택 항목의 배치만 저장. 환자 증상/검사결과는 절대 저장/자동 확정하지 않음. */
+const QUICK_TEMPLATES={
+ neck:{s:['경항통','후경부 뻣뻣함','상지 방사통','손 저림'],pain:['뻐근함','당김','저림'],prov:['좌회전','우회전','장시간 컴퓨터','운전'],func:['후방주시','수면'],rom:['경추 굴곡','경추 좌회전','경추 우회전'],palp:['상부승모근','견갑거근','경추기립근'],tests:['Spurling Rt','Spurling Lt','ULTT Rt','ULTT Lt'],dx:['경항부 근육긴장','경추부 근막통증','경추부 염좌 및 긴장']},
+ shoulder:{s:['견관절 통증','외전 시 통증','야간통','거상 제한'],pain:['쑤심','움직임 시 통증'],prov:['상지 거상','외전','외회전','등 뒤로 손 넣기'],func:['머리 감기','옷 갈아입기','수면'],rom:['견관절 외전','견관절 굴곡','견관절 외회전'],palp:['극상근 부착부','견갑하근 부착부','상완이두근 장두건'],tests:['Neer 검사','Hawkins-Kennedy 검사','Empty can 검사'],dx:['견관절 근육긴장','견관절 통증','회전근개 병변 의심']},
+ back:{s:['요통','둔부 통증','하지 방사통','하지 저림'],pain:['뻐근함','쑤심','저림'],prov:['허리 굴곡','오래 앉기','기상 시','보행'],func:['앉기','체위 변경','보행'],rom:['요추 굴곡','요추 신전','요추 좌측굴','요추 우측굴'],palp:['요추기립근','요방형근','둔근'],tests:['SLR Rt','SLR Lt','Slump Rt','Slump Lt'],dx:['요배부 근육긴장','요배부 근막통증','비특이적 요통','기타 등통증']},
+ thoracic:{s:['배부 통증','흉추부 강직','견갑간 통증'],pain:['뻐근함','당김'],prov:['몸통 회전','장시간 앉기','심호흡'],func:['업무·가사','수면'],rom:[],palp:['흉추기립근','능형근','견갑내측연'],tests:[],dx:['배부 근육긴장','배부 근막통증','기타 등통증']},
+ elbow:{s:['주관절 통증','외측 상과부 통증','내측 상과부 통증'],pain:['쑤심','압박 시 통증'],prov:['물건 쥐기','손목 신전','손목 굴곡'],func:['물건 들기','업무·가사'],rom:['주관절 굴곡','주관절 신전'],palp:['외측 상과','내측 상과','총신근건'],tests:['Cozen 검사','Mill 검사','Golfer elbow test'],dx:['주관절 근육긴장','외측상과염 의심','내측상과염 의심']},
+ wrist:{s:['완관절 통증','척측 손목 통증','요측 손목 통증','손가락 저림'],pain:['찌릿함','쑤심'],prov:['쥐기','비틀기','손목 신전'],func:['물건 쥐기','컴퓨터 작업','육아'],rom:['손목 굴곡','손목 신전'],palp:['TFCC fovea','요골경상돌기','수근관'],tests:['Fovea sign','TFCC 부하검사','Finkelstein 검사'],dx:['완관절 근육긴장','TFCC 손상 의심','완관절 염좌 및 긴장']},
+ hip:{s:['서혜부 통증','둔부 통증','보행 시 통증'],pain:['쑤심','뻐근함'],prov:['보행','계단','오래 앉기'],func:['양반다리','앉고 일어나기','보행'],rom:['고관절 굴곡','고관절 내회전','고관절 외회전'],palp:['대전자','둔중근','이상근'],tests:['FABER 검사','FADIR 검사'],dx:['둔부 근막통증','고관절 근육긴장','고관절 염좌 및 긴장']},
+ knee:{s:['슬관절 통증','슬관절 부종','계단 시 통증','무릎 꺾임'],pain:['시큰함','뻣뻣함'],prov:['계단 내려가기','쪼그려 앉기','무릎 굴곡'],func:['보행','계단','쪼그려 앉기'],rom:['슬관절 굴곡','슬관절 신전'],palp:['내측 관절선','외측 관절선','슬개건'],tests:['McMurray 검사','Lachman 검사','Patellar grind'],dx:['슬관절 통증','슬관절 염좌 및 긴장','반월상연골 손상 의심']},
+ ankle:{s:['족관절 통증','족관절 부종','체중부하 통증','불안정감'],pain:['시큰함','쑤심'],prov:['체중부하','발목 내번','보행'],func:['보행','계단','운동'],rom:['족관절 배측굴곡','족관절 저측굴곡'],palp:['전거비인대 부위','종비인대 부위','외과'],tests:['Anterior drawer(족관절)','Talar tilt 검사'],dx:['족관절 통증','족관절 염좌 및 긴장','발목 외측인대 손상 의심']},
+ head:{s:['두통','후두부 통증','어지럼','구역'],pain:['조이는 느낌','박동성'],prov:['수면 부족','목 움직임','자세 변경'],func:['업무','집중','수면'],rom:['경추 좌회전','경추 우회전'],palp:['후두하근','측두근','상부승모근'],tests:['Dix-Hallpike Rt','Dix-Hallpike Lt','안진 관찰'],dx:['두통(원인 평가 필요)','경추성 두통 의심','어지럼(원인 평가 필요)']},
+ chest:{s:['흉곽 통증','늑골부 통증','심호흡 시 통증'],pain:['쑤심','압박 시 통증'],prov:['심호흡','기침','몸통 회전'],func:['호흡','수면'],rom:[],palp:['늑간부','늑골척추관절부'],tests:['흉곽 압박검사'],dx:['흉곽부 염좌 및 긴장 의심','늑골 주변 근육통 의심']},
+ abdomen:{s:['복통','상복부 통증','복부 팽만'],pain:['둔통','쥐어짜는 통증'],prov:['식후','공복','배변 전후'],func:['식사','수면'],rom:[],palp:['상복부','우상복부','좌상복부'],tests:['반발압통','복부 강직'],dx:['복통(원인 평가 필요)']}
+};
+const QUICK_ORDER=['neck','shoulder','back','thoracic','elbow','wrist','hip','knee','ankle','head','chest','abdomen'];
+const QUICK_LABEL={neck:'목',shoulder:'어깨',back:'허리',thoracic:'등',elbow:'팔꿈치',wrist:'손목',hip:'고관절',knee:'무릎',ankle:'발목',head:'두통·어지럼',chest:'흉곽',abdomen:'복부'};
+const QUICK_CATEGORY={neck:'목',shoulder:'어깨',back:'허리',thoracic:'기타',elbow:'팔·손',wrist:'팔·손',hip:'고관절·하지',knee:'무릎',ankle:'고관절·하지',head:'기타',chest:'기타',abdomen:'소화기·내과'};
+const QUICK_VIEW={neck:'back',shoulder:'back',back:'back',thoracic:'back',elbow:'front',wrist:'front',hip:'back',knee:'front',ankle:'front',head:'front',chest:'front',abdomen:'front'};
+const QUICK_AXIS=new Set(['neck','back','thoracic','head','chest','abdomen']);
+const QUICK_FIELDS=['s','pain','prov','func','rom','palp','tests','dx'];
+const QUICK_FIELD_LABELS={s:'주증상',pain:'통증 양상',prov:'악화·유발',func:'기능제한',rom:'ROM',palp:'압통·촉진',tests:'유발·신경검사',dx:'A 진단 후보'};
+const QUICK_STORE_KEY='okchart-soap-quick-templates-v1';
+let quickCustom={},quickFocus={region:'',side:''};
+function quickOptions(region,field){if(!DATA[region])return[];const full=field==='dx'?[...DATA[region].dx,...(A_REGION_DX[region]||[])]:DATA[region][field]||[];return [...new Set([...full,...(QUICK_TEMPLATES[region]?.[field]||[])])];}
+function quickSafeProfile(region,raw){if(!QUICK_TEMPLATES[region]||!raw||typeof raw!=='object')return null;const profile={};for(const f of QUICK_FIELDS){const allowed=new Set(quickOptions(region,f));profile[f]=Array.isArray(raw[f])?[...new Set(raw[f].filter(x=>typeof x==='string'&&allowed.has(x)))]:[...QUICK_TEMPLATES[region][f]];}
+ profile.pPresetId=typeof raw.pPresetId==='string'&&raw.pPresetId.length<160?raw.pPresetId:'';return profile;}
+function quickProfile(region){return quickCustom[region]||{...QUICK_TEMPLATES[region],pPresetId:''};}
+function quickLoad(){try{const raw=localStorage.getItem(QUICK_STORE_KEY);if(!raw)return;const p=JSON.parse(raw);if(!p||p.schema!==1||typeof p.templates!=='object'||!p.templates)return;for(const r of QUICK_ORDER){const safe=quickSafeProfile(r,p.templates[r]);if(safe)quickCustom[r]=safe;}}catch(e){console.warn('빠른 진료세트 설정을 불러올 수 없습니다. 기존 저장정보를 보존합니다.');}}
+function quickSave(){try{localStorage.setItem(QUICK_STORE_KEY,JSON.stringify({schema:1,templates:quickCustom}));return true}catch(e){toast('브라우저 저장에 실패했습니다. 설정 백업을 확인하세요.');return false}}
+function quickGetKey(region=quickFocus.region,side=quickFocus.side){return region&&side?region+'|'+side+'|'+QUICK_VIEW[region]:''}
+function quickCurrent(){return state.regions.get(quickGetKey())||null;}
+function quickSyncRegion(){drawMaps();drawAreaChips();updateQuick();drawRegionEditors();drawPRegionChips();if(state.plan==='billing')drawBilling();render();}
+function quickChoose(region){if(!QUICK_TEMPLATES[region])return;quickFocus.region=region;
+ const candidates=[...state.regions.entries()].filter(([k,v])=>v.region===region&&v.view===QUICK_VIEW[region]);
+ quickFocus.side=candidates.length?candidates[0][1].side:QUICK_AXIS.has(region)?'C':'';
+ if(quickFocus.side&&!quickCurrent()){state.regions.set(quickGetKey(),regionObj(region,quickFocus.side,QUICK_VIEW[region]));quickSyncRegion();}
+ quickDrawCards();quickDrawEditor();}
+function quickHasClinical(obj){return obj&&([obj.sym,obj.pain,obj.prov,obj.func,obj.dx].some(x=>x.size>0)||obj.nrs!==''||Boolean(obj.note)||Object.values(obj.rom).some(x=>x&&x.degree!==''&&x.degree!==undefined)||Object.values(obj.palp).some(Boolean)||Object.values(obj.tests).some(Boolean));}
+function quickSetSide(side){if(!quickFocus.region||!['R','L','B','C'].includes(side))return;
+ const previous=quickGetKey(),obj=state.regions.get(previous),next=quickGetKey(quickFocus.region,side);
+ if(previous!==next&&obj&&!state.regions.has(next)&&!quickHasClinical(obj)){
+  state.regions.delete(previous);obj.side=side;state.regions.set(next,obj);
+ }else if(!state.regions.has(next)){
+  state.regions.set(next,regionObj(quickFocus.region,side,QUICK_VIEW[quickFocus.region]));
+  if(obj&&quickHasClinical(obj))toast('기존 측면의 검사결과는 유지하고 새 측면은 비어 있는 기록으로 시작합니다.');
+ }
+ quickFocus.side=side;quickSyncRegion();quickDrawEditor();}
+function quickDrawCards(){const root=$('quickTemplateCards');if(!root)return;root.replaceChildren();for(const region of QUICK_ORDER){const b=makePart('button','quickv-card'+(quickFocus.region===region?' active':''),QUICK_LABEL[region]);b.type='button';b.setAttribute('aria-pressed',String(quickFocus.region===region));b.onclick=()=>quickChoose(region);root.append(b);}}
+function quickGroup(title,field,list,obj){if(!list.length)return null;const wrap=makePart('div','quickv-group'),head=makePart('div','quickv-group-title',title),chips=makePart('div','quickv-controls');
+ for(const name of list){const active=obj[field].has(name);chips.append(choiceButton(name,active,()=>{obj[field].has(name)?obj[field].delete(name):obj[field].add(name);quickRefresh();},'chip'));}
+ wrap.append(head,chips);return wrap;}
+function quickRefresh(){drawRegionEditors();render();quickDrawEditor();}
+function quickSelectNrs(obj){const group=makePart('div','quickv-group'),head=makePart('div','quickv-group-title','NRS'),choices=makePart('div','quickv-controls');
+ for(let n=0;n<=10;n++){const num=String(n);choices.append(choiceButton(num,obj.nrs===num,()=>{obj.nrs=obj.nrs===num?'':num;quickRefresh();},'chip'));}
+ group.append(head,choices);return group;}
+function quickRom(obj,name){const box=makePart('div','quickv-exam'),h=makePart('b','',name),cfg=romRange(name);if(!cfg)return box;
+ const opts=[['','미측정'],...cfg.list.map(n=>[String(n),n+'°'])],current=obj.rom[name]?.degree??'';
+ const select=selectEl(opts,current,v=>{obj.rom[name]={degree:v};drawRegionEditors();render();const x=romClassification(name,v);status.textContent=x.kind==='empty'?'미측정':x.label;status.className='quickv-mini rom-feedback'+(x.kind==='empty'?'':' '+x.kind);},name+' 빠른 ROM');
+ const status=makePart('span','quickv-mini rom-feedback'),rv=romClassification(name,current);status.textContent=rv.kind==='empty'?'미측정':rv.label;status.className='quickv-mini rom-feedback'+(rv.kind==='empty'?'':' '+rv.kind);
+ box.append(h,select,status);return box;}
+function quickPalp(obj,name){const box=makePart('div','quickv-exam'),h=makePart('b','',name),chips=makePart('div','quickv-controls');
+ for(const [value,label]of [['+','압통 (+)'],['-','(-)'],['긴장','긴장 (+)']])chips.append(choiceButton(label,obj.palp[name]===value,()=>{obj.palp[name]=obj.palp[name]===value?'':value;quickRefresh();},'tiny'));
+ box.append(h,chips);return box;}
+function quickPairedTests(list){const used=new Set(),result=[];for(const name of list){if(used.has(name))continue;const match=name.match(/^(.*) (Rt|Lt)$/);if(match){const base=match[1],rt=base+' Rt',lt=base+' Lt';if(list.includes(rt)&&list.includes(lt)){used.add(rt);used.add(lt);result.push({label:base,rt,lt});continue;}}
+ used.add(name);result.push({label:name,name});}
+ return result;}
+function quickExam(obj,spec){const box=makePart('div','quickv-exam'),h=makePart('b','',spec.label),chips=makePart('div','quickv-controls');
+ if(spec.rt){for(const [rt,lt,label]of [['-','-','양측 (-)'],['+','-','우(+) 좌(-)'],['-','+','우(-) 좌(+)'],['+','+','양측 (+)']]){
+  const active=obj.tests[spec.rt]===rt&&obj.tests[spec.lt]===lt;
+  chips.append(choiceButton(label,active,()=>{obj.tests[spec.rt]=active?'':rt;obj.tests[spec.lt]=active?'':lt;quickRefresh();},'tiny'));}}
+ else for(const [v,label]of [['-','(-)'],['+','(+)']])chips.append(choiceButton(label,obj.tests[spec.name]===v,()=>{obj.tests[spec.name]=obj.tests[spec.name]===v?'':v;quickRefresh();},'tiny'));
+ box.append(h,chips);return box;}
+function quickBuildGroup(label,children){if(!children.length)return null;const block=makePart('div'),h=makePart('div','quickv-section-label',label),grid=makePart('div','quickv-grid');grid.append(...children);block.append(h,grid);return block;}
+function quickDrawEditor(){const root=$('quickVisitEditor');if(!root)return;root.replaceChildren();const region=quickFocus.region;if(!region){root.append(makePart('p','micro','위에서 진료 부위를 선택하면 S / O / A를 한 화면에서 작성할 수 있습니다.'));return;}
+ const prof=quickProfile(region),wrap=makePart('div','quickv-main'),header=makePart('div','quickv-title');header.append(makePart('h3','',QUICK_LABEL[region]+' 빠른 진료'));
+ const quickActions=makePart('div','quickv-row');for(const [m,label]of [['initial','초진'],['followup','재진']])quickActions.append(choiceButton(label,state.mode===m,()=>{setMode(m);},'tiny'));
+ header.append(quickActions);wrap.append(header);
+ const sides=makePart('div','quickv-row');sides.append(makePart('span','quickv-mini','진료 부위'));
+ const options=QUICK_AXIS.has(region)?[['C','중앙/미분류'],['R','우측'],['L','좌측'],['B','양측']]:[['R','우측'],['L','좌측'],['B','양측']];
+ for(const [side,label]of options)sides.append(choiceButton(label,quickFocus.side===side,()=>quickSetSide(side),'tiny'));
+ if(quickCurrent()){const del=makePart('button','tiny','현재 부위 제거');del.type='button';del.onclick=()=>{
+   const obj=quickCurrent();if(obj&&quickHasClinical(obj)&&!confirm('선택된 부위의 S·O·A 결과를 차트에서 지울까요? 치료세트는 유지됩니다.'))return;
+   state.regions.delete(quickGetKey());quickFocus.side='';quickSyncRegion();quickDrawEditor();};sides.append(del);}
+ wrap.append(sides);
+ if(!quickFocus.side){wrap.append(makePart('div','quickv-status','좌측·우측·양측 중 실제 불편 부위를 먼저 선택하세요. 아직 S·O에 기록된 내용은 없습니다.'));root.append(wrap);return;}
+ const obj=quickCurrent();if(!obj){root.append(wrap);return;}
+ const sHeader=makePart('div','quickv-section-label','S · 문진 / 확인한 내용만 선택');wrap.append(sHeader);
+ if(state.mode==='initial'){const on=makePart('div','quickv-group'),title=makePart('div','quickv-group-title','Onset'),quick=makePart('div','quickv-controls');
+ for(const period of ['1주 전','2주 전','3주 전','1개월 전','3개월 전','6개월 전','1년 전'])quick.append(choiceButton(period,onsetRelative===period,()=>{onsetRelative=onsetRelative===period?'':period;$('onsetDate').value='';$('onsetCustomCount').value='';drawOnsetQuick();render();quickDrawEditor();},'chip'));
+ const dateBtn=makePart('button','tiny','날짜/기타 기간');dateBtn.type='button';dateBtn.onclick=()=>{$('onsetBox').scrollIntoView({behavior:'smooth',block:'center'});};quick.append(dateBtn);on.append(title,quick);wrap.append(on);}
+ else {const row=makePart('div','quickv-group'),label=makePart('div','quickv-group-title','경과'),btns=makePart('div','quickv-controls');for(const t of ['약호전','뚜렷한 호전','유사','악화','호전·악화 반복'])btns.append(choiceButton(t,state.trend===t,()=>{state.trend=state.trend===t?'':t;quickRefresh();},'chip'));row.append(label,btns);wrap.append(row);}
+ const chosen=[['주증상','sym','s'],['통증 양상','pain','pain'],['악화·유발','prov','prov'],['기능 제한','func','func']];
+ for(const [name,target,field]of chosen){const item=quickGroup(name,target,prof[field],obj);if(item)wrap.append(item);}
+ wrap.append(quickSelectNrs(obj));
+ const romGroup=quickBuildGroup('O · ROM (각도 선택 즉시 제한 여부 표시)',prof.rom.map(name=>quickRom(obj,name)));if(romGroup)wrap.append(romGroup);
+ const palpGroup=quickBuildGroup('O · 압통/근긴장',prof.palp.map(name=>quickPalp(obj,name)));if(palpGroup)wrap.append(palpGroup);
+ const testGroup=quickBuildGroup('O · 유발·신경검사 (미검사 기본값)',quickPairedTests(prof.tests).map(x=>quickExam(obj,x)));if(testGroup)wrap.append(testGroup);
+ const dxHeader=makePart('div','quickv-section-label','A · 임상평가 (자동 선택 없음)');wrap.append(dxHeader);
+ const dxRow=quickGroup('진단 후보','dx',prof.dx,obj);if(dxRow)wrap.append(dxRow);
+ const pLabel=makePart('div','quickv-section-label','P · 저장된 치료세트 연결 (자동 시행기록 없음)');wrap.append(pLabel);
+ const footer=makePart('div','quickv-foot'),matching=[...procedurePresets].sort((a,b)=>(b.category===QUICK_CATEGORY[region]?1:0)-(a.category===QUICK_CATEGORY[region]?1:0));
+ const selectedId=matching.find(x=>x.id===prof.pPresetId)?prof.pPresetId:(matching.find(x=>x.category===QUICK_CATEGORY[region])?.id||'');
+ const opts=[['','치료세트 미선택'],...matching.map(x=>[x.id,x.category+' · '+x.name])],sel=selectEl(opts,selectedId, v=>{const original=quickCustom[region]||{...QUICK_TEMPLATES[region]};quickCustom[region]=quickSafeProfile(region,{...original,pPresetId:v});quickSave();},'연결할 P 치료세트');
+ const apply=makePart('button','btn primary','선택한 P 치료세트 불러오기');apply.type='button';apply.disabled=!matching.length;apply.onclick=()=>{if(!sel.value){toast('저장된 치료세트를 먼저 선택하세요.');return;}applyPreset(sel.value);};
+ footer.append(sel,apply);if(!matching.length)footer.append(makePart('span','quickv-mini','등록된 P 세트 없음 · 아래에서 먼저 치료세트 저장'));wrap.append(footer);
+ wrap.append(makePart('p','quickv-mini','불러온 P는 금일 실제 시술 확인 후 복사할 수 있습니다. 검사 수치·음성/양성 소견은 이 세트에 저장하지 않습니다.'));
+ const manage=document.createElement('details');manage.className='quickv-manage';const summary=document.createElement('summary');summary.textContent='이 부위의 빠른 버튼 구성 수정 · 저장 / 초기화 / 백업';manage.append(summary);
+ const editGrid=makePart('div','quickv-editgrid');
+ for(const field of QUICK_FIELDS){const item=makePart('div','quickv-editgroup'),head=makePart('strong','',QUICK_FIELD_LABELS[field]),list=makePart('div','quickv-controls');
+ for(const word of quickOptions(region,field)){const currently=prof[field].includes(word);list.append(choiceButton(word,currently,()=>{const original=quickCustom[region]||{...QUICK_TEMPLATES[region]};const copy=quickSafeProfile(region,original);copy[field]=currently?copy[field].filter(x=>x!==word):[...copy[field],word];quickCustom[region]=copy;if(quickSave()){quickDrawEditor();const open=$('quickVisitEditor').querySelector('.quickv-manage');if(open)open.open=true;}},'chip'));}
+ item.append(head,list);editGrid.append(item);}
+ manage.append(editGrid);const controls=makePart('div','quickv-foot');
+ const resetBtn=makePart('button','tiny','이 부위 버튼 구성 기본값 복원');resetBtn.type='button';resetBtn.onclick=()=>{if(!confirm('이 부위의 빠른 버튼 배치만 기본값으로 돌릴까요? 환자별 차트와 치료세트는 삭제하지 않습니다.'))return;delete quickCustom[region];quickSave();quickDrawEditor();};
+ const exp=makePart('button','tiny','진료세트 설정 JSON 백업');exp.type='button';exp.onclick=()=>{const blob=new Blob([JSON.stringify({format:'okchart-soap-quick-templates',schema:1,templates:quickCustom},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='OK차트_빠른진료세트_설정.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+ const imp=makePart('button','tiny','진료세트 설정 JSON 가져오기');imp.type='button';
+ const upload=document.createElement('input');upload.type='file';upload.accept='.json,application/json';upload.className='hide';
+ imp.onclick=()=>upload.click();upload.onchange=async e=>{const file=e.target.files?.[0];e.target.value='';if(!file)return;
+  if(file.size>150000){toast('150KB 이하의 진료세트 설정 파일을 선택하세요.');return;}
+  try{const data=JSON.parse(await file.text());if(data.format!=='okchart-soap-quick-templates'||data.schema!==1||!data.templates||typeof data.templates!=='object'||Array.isArray(data.templates))throw Error('invalid');
+   const next={...quickCustom};let count=0;for(const region of QUICK_ORDER){if(!Object.prototype.hasOwnProperty.call(data.templates,region))continue;
+    const clean=quickSafeProfile(region,data.templates[region]);if(clean){next[region]=clean;count++;}}
+   if(!count)throw Error('no template');if(!confirm('부위별 빠른 버튼 설정 '+count+'개를 가져올까요? 기존 P 치료세트와 환자기록은 유지됩니다.'))return;
+   const before=quickCustom;quickCustom=next;if(!quickSave()){quickCustom=before;return;}quickDrawEditor();toast('진료세트 버튼 설정을 복원했습니다.');
+  }catch(err){toast('올바른 진료세트 설정 JSON이 아닙니다.');}};
+ controls.append(resetBtn,exp,imp,upload);manage.append(controls);wrap.append(manage);
+ root.append(wrap);
+}
+
 const ROM_META2=ROM_META;
 const SYS={
  dyspepsia:{name:'소화불량',subtitle:'식후 불편·조기포만·상복부 증상',groups:[['주증상',['식후 더부룩함','조기포만감','상복부 통증','속쓰림','트림','오심','구토','식욕저하']],['발생 양상',['식후 악화','공복 악화','야간 증상','기름진 음식 후','과식 후','스트레스 연관']],['동반 확인',['역류감','복부팽만','배변 변화','식사량 감소','체중감소','연하곤란','흑색변','토혈']],['기능 영향',['식사량 감소','식사 후 활동 곤란','수면 방해']]],observed:['상복부 압통(+)','복부팽만 관찰','복부 반발압통(+)','탈수 징후 관찰'],dx:['기능성 소화불량 의심','상복부 통증(원인 평가 필요)','위식도역류 의심'],red:'토혈·흑색변·진행하는 연하곤란·의도치 않은 체중감소·지속 구토 등은 추가 평가가 필요한 경고 증상입니다.',alertWords:['토혈','흑색변','연하곤란','체중감소']},
@@ -308,7 +477,7 @@ function toggleModule(key){if(state.modules.has(key))state.modules.delete(key);e
 function drawModules(){const top=$('moduleChoices');top.replaceChildren();for(const [key,d]of Object.entries(SYS))top.append(choiceButton(d.name,state.modules.has(key),()=>toggleModule(key)));const box=$('moduleEditors');box.replaceChildren();for(const [key,m]of state.modules){const d=SYS[key];const card=document.createElement('details');card.open=true;card.className='module';const sum=document.createElement('summary');const info=document.createElement('span');info.textContent=d.name+'　';let sub=document.createElement('small');sub.className='modtag';sub.textContent=d.subtitle;info.append(sub);const tag=document.createElement('span');tag.className='module-checked';tag.textContent='선택 중';sum.append(info,tag);card.append(sum);const inside=document.createElement('div');inside.className='inside';const severity=document.createElement('div');severity.className='choicegroup';severity.innerHTML='<h4>증상 강도 NRS (확인 시 선택)</h4>';let cs=document.createElement('div');cs.className='chips';for(let i=0;i<=10;i++)cs.append(choiceButton(String(i),m.severity===String(i),()=>{m.severity=m.severity===String(i)?'':String(i);drawModules();render();},'tiny'));severity.append(cs);inside.append(severity);for(const [group,items]of d.groups){m.groups[group]??=new Set();inside.append(checkGroup(group,items,m.groups[group],()=>{}));}inside.append(checkGroup('O: 실제 확인한 관찰·진찰',d.observed,m.observed,()=>{}));inside.append(checkGroup('A: 진단 후보 (자동 확정 아님)',d.dx,m.dx,()=>{}));let text=document.createElement('label');text.className='field gap';text.textContent='기간·빈도·진단 근거 등 추가 문진';let ta=document.createElement('textarea');ta.placeholder='예: 3개월 전 시작, 주 4회, 식후 30분간 지속';ta.value=m.detail;ta.oninput=()=>{m.detail=ta.value;render()};text.append(ta);inside.append(text);let notice=document.createElement('div');notice.className='alertlist';notice.textContent='확인할 위험징후: '+d.red;inside.append(notice);card.append(inside);box.append(card);}}
 function drawCommon(){const a=$('aDiagnosisChoices');for(const s of CLINICAL_A_CHOICES)a.append(choiceButton(s,state.aDiagnosis.has(s),()=>{state.aDiagnosis.has(s)?state.aDiagnosis.delete(s):state.aDiagnosis.add(s);refreshChip(a,s,state.aDiagnosis.has(s));render()}));const node=$('assessmentChoices');for(const s of COMMON_A)node.append(choiceButton(s,state.assessment.has(s),()=>{state.assessment.has(s)?state.assessment.delete(s):state.assessment.add(s);refreshChip(node,s,state.assessment.has(s));render()}));const t=$('trendChoices');for(const s of TRENDS)t.append(choiceButton(s,state.trend===s,()=>{state.trend=state.trend===s?'':s;for(const b of t.children)b.classList.toggle('active',b.textContent===state.trend);render()}));const treat=$('treatChips');for(const s of PLAN)treat.append(choiceButton(s,state.treatment.has(s),()=>{state.treatment.has(s)?state.treatment.delete(s):state.treatment.add(s);refreshChip(treat,s,state.treatment.has(s));render()}));const n=$('nextChips');for(const s of NEXT)n.append(choiceButton(s,state.next.has(s),()=>{state.next.has(s)?state.next.delete(s):state.next.add(s);refreshChip(n,s,state.next.has(s));render()}));drawPRegionChips();}
 function drawPRegionChips(){const box=$('pRegionChips');box.replaceChildren();for(const [key,o]of state.regions){box.append(choiceButton(labelRegion(o),state.treatmentAreas.has(key),()=>{state.treatmentAreas.has(key)?state.treatmentAreas.delete(key):state.treatmentAreas.add(key);drawPRegionChips();render()}));}if(!state.regions.size)box.innerHTML='<span class="micro">먼저 인체도에서 통증부위를 선택하세요.</span>';}
-function setMode(mode){state.mode=mode;for(const b of document.querySelectorAll('[data-mode]')){b.classList.toggle('active',b.dataset.mode===mode);b.setAttribute('aria-pressed',String(b.dataset.mode===mode))}$('onsetBox').classList.toggle('hide',mode!=='initial');$('mechanismBox').classList.toggle('hide',mode!=='initial');$('trendWrap').classList.toggle('hide',mode==='initial');$('longBox').classList.toggle('hide',mode!=='extended');$('resultMode').textContent={initial:'초진',followup:'재진',weekly:'주간',extended:'장기평가'}[mode];render()}
+function setMode(mode){state.mode=mode;for(const b of document.querySelectorAll('[data-mode]')){b.classList.toggle('active',b.dataset.mode===mode);b.setAttribute('aria-pressed',String(b.dataset.mode===mode))}$('onsetBox').classList.toggle('hide',mode!=='initial');$('mechanismBox').classList.toggle('hide',mode!=='initial');$('trendWrap').classList.toggle('hide',mode==='initial');$('longBox').classList.toggle('hide',mode!=='extended');$('resultMode').textContent={initial:'초진',followup:'재진',weekly:'주간',extended:'장기평가'}[mode];render();quickDrawEditor()}
 function setPlan(p){state.plan=p;for(const b of document.querySelectorAll('[data-plan]'))b.classList.toggle('active',b.dataset.plan===p);$('planClick').classList.toggle('hide',p!=='click');$('planBilling').classList.toggle('hide',p!=='billing');$('planManual').classList.toggle('hide',p!=='manual');render()}
 const ONSET_QUICK_VALUES=['1주 전','2주 전','3주 전','1개월 전','2개월 전','3개월 전','6개월 전','1년 전','2년 전','3년 전'];
 let onsetRelative='';
@@ -326,11 +495,11 @@ function updateOnsetCustom(){
  const raw=val('onsetCustomCount'),n=Number(raw);
  onsetRelative=raw&&Number.isInteger(n)&&n>=1&&n<=99?n+val('onsetCustomUnit')+' 전':'';
  if(onsetRelative)$('onsetDate').value='';
- drawOnsetQuick();render();
+ drawOnsetQuick();render();quickDrawEditor();
 }
 function updateOnsetDate(){
  if(val('onsetDate')){onsetRelative='';$('onsetCustomCount').value='';}
- drawOnsetQuick();render();
+ drawOnsetQuick();render();quickDrawEditor();
 }
 function val(id){return String($(id).value||'').trim()};function sanitize(s){return String(s||'').replace(/[\r\n]+/g,'; ').replace(/[ \t]+/g,' ').trim().replace(/[;, ]+$/,'')};function joinSet(s){return [...s].join(', ')}
 function dateDiff(){if(!val('accidentDate')||!val('visitDate'))return null;const x=Date.parse(val('accidentDate')+'T00:00:00'),y=Date.parse(val('visitDate')+'T00:00:00');return Number.isFinite(x)&&Number.isFinite(y)?Math.round((y-x)/86400000):null;}
@@ -1066,7 +1235,7 @@ $('priorUseP').onclick=usePreviousPlan;
 
 function createSOAP(){const s=[],o=[],a=[],p=[];
 const chief=chiefComplaintSummary();if(chief)s.push('주호소: '+chief);if(state.mode==='initial'&&onsetText())s.push('Onset) '+onsetText());
-for(const reg of state.regions.values()){const place=labelRegion(reg);const changes=[];if(reg.sym.size)changes.push(joinSet(reg.sym));if(reg.nrs!=='')changes.push('NRS '+reg.nrs+'/10');if(reg.pain.size)changes.push('양상 '+joinSet(reg.pain));if(reg.prov.size)changes.push('유발 '+joinSet(reg.prov));if(reg.func.size)changes.push('기능제한 '+joinSet(reg.func));if(reg.note)changes.push(sanitize(reg.note));if(changes.length)s.push(place+': '+changes.join('\n    · '));for(const [name,rom]of Object.entries(reg.rom)){const cfg=romRange(name);if(!cfg)continue;const hasDegree=rom.degree!==''&&rom.degree!==undefined;if(!hasDegree)continue;let cleanName=name;if((place.includes('견관절')&&name.startsWith('견관절 '))||(place.includes('주관절')&&name.startsWith('주관절 '))||(place.includes('슬관절')&&name.startsWith('슬관절 ')))cleanName=name.replace(/^[^ ]+ /,'');let txt=place+' '+cleanName;const degree=Number(rom.degree);if(cfg.ext){txt+=degree===0?' 0° (완전신전)':' 신전 제한 '+degree+'°';}else{txt+=' '+degree+'° '+romClassification(name,rom.degree).label;}o.push(txt);}for(const [name,x]of Object.entries(reg.palp))if(x)o.push(place+' '+name+'('+x+')');for(const [name,x]of Object.entries(reg.tests))if(x)o.push(place+' '+name+'('+x+')');if(reg.dx.size)a.push(place+': '+joinSet(reg.dx));}
+for(const reg of state.regions.values()){const place=labelRegion(reg);const changes=[];if(reg.sym.size)changes.push(joinSet(reg.sym));if(reg.nrs!=='')changes.push('NRS '+reg.nrs+'/10');if(reg.pain.size)changes.push('양상 '+joinSet(reg.pain));if(reg.prov.size)changes.push('유발 '+joinSet(reg.prov));if(reg.func.size)changes.push('기능제한 '+joinSet(reg.func));if(reg.note)changes.push(sanitize(reg.note));if(changes.length)s.push(place+': '+changes.join('\n    · '));for(const [name,rom]of Object.entries(reg.rom)){const cfg=romRange(name);if(!cfg)continue;const hasDegree=rom.degree!==''&&rom.degree!==undefined;if(!hasDegree)continue;let cleanName=name;if((place.includes('견관절')&&name.startsWith('견관절 '))||(place.includes('주관절')&&name.startsWith('주관절 '))||(place.includes('슬관절')&&name.startsWith('슬관절 ')))cleanName=name.replace(/^[^ ]+ /,'');let txt=place+' '+cleanName;const degree=Number(rom.degree);if(cfg.ext){txt+=degree===0?' 0° (완전신전)':' 신전 제한 '+degree+'°';}else{txt+=' '+degree+'° '+romClassification(name,rom.degree).label;}o.push(txt);}for(const [name,x]of Object.entries(reg.palp))if(x)o.push(place+' '+name+'('+x+')');const mergedTests=new Set();for(const [name,x]of Object.entries(reg.tests)){if(!x||mergedTests.has(name))continue;const match=name.match(/^(.*) Rt$/);if(match&&reg.tests[match[1]+' Lt']){o.push(place+' '+match[1]+'('+x+'/'+reg.tests[match[1]+' Lt']+')');mergedTests.add(name);mergedTests.add(match[1]+' Lt');continue;}o.push(place+' '+name+'('+x+')');}if(reg.dx.size)a.push(place+': '+joinSet(reg.dx));}
 for(const [key,m]of state.modules){const d=SYS[key];const ms=[];for(const [group,selected]of Object.entries(m.groups))if(selected.size)ms.push(group+' '+joinSet(selected));if(m.severity!=='')ms.push('NRS '+m.severity+'/10');if(m.detail)ms.push(sanitize(m.detail));if(ms.length)s.push(d.name+': '+ms.join('\n    · '));else s.push(d.name+' (세부 문진 미기록)');for(const obs of m.observed)o.push(d.name+': '+obs);if(m.dx.size)a.push(d.name+': '+joinSet(m.dx));}
 if(state.mode==='initial'){if(val('mechanism'))s.push('발생기전: '+val('mechanism'));if(val('history'))s.push('병력: '+sanitize(val('history')));}else if(state.trend)s.push('전회 대비 '+state.trend);
 if(patternState.on){const pn=patternNotes();s.push(...pn.s);o.push(...pn.o);a.push(...pn.a);}
@@ -1094,7 +1263,7 @@ function toast(msg){const e=$('toast');e.textContent=msg;e.style.display='block'
 function validate(){if(presetEverApplied&&presetNeedsReview&&state.plan==='billing'){toast('치료세트가 불러와졌지만 금일 시술 확인이 필요합니다. 상단의 확인 버튼을 눌러주세요.');document.getElementById('presetApplySection').scrollIntoView({behavior:'smooth',block:'center'});return false}if(!createSOAP().trim()){toast('SOAP 내용을 먼저 선택하세요.');return false}return true;}
 async function copySOAP(){if(!validate())return;const t=createSOAP();try{if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(t);else{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.left='-1000px';document.body.append(a);a.select();if(!document.execCommand('copy'))throw Error('copy');a.remove()}toast('SOAP가 복사되었습니다. OK차트에 붙여넣으세요.')}catch(e){toast('복사 권한이 제한됐습니다. 결과 영역을 직접 선택해 복사하세요.')}}
 function downloadTxt(){if(!validate())return;const head=['진료일 '+val('visitDate'),val('insurance')==='자보'&&val('accidentDate')?'사고일 '+val('accidentDate'):''].filter(Boolean).join('\n');const blob=new Blob(['\ufeff'+head+'\n\n'+createSOAP()+'\n'],{type:'text/plain;charset=utf-8'});const uri=URL.createObjectURL(blob),link=document.createElement('a');link.href=uri;link.download='OK차트_SOAP_'+(val('visitDate')||'미지정')+'.txt';link.click();setTimeout(()=>URL.revokeObjectURL(uri),1100);toast('TXT 파일을 저장했습니다. 환자정보로 보호하세요.');}
-function reset(){if(!confirm('현재 입력값을 모두 초기화할까요?'))return;onsetRelative='';clearPrior();state.regions.clear();state.modules.clear();state.assessment.clear();state.aDiagnosis.clear();patternState.on=false;patternState.diag='';for(const s of Object.values(patternState.sets))s.clear();patternState.mechanisms.clear();for(const key of ['patternEnabled','patternClaimRequest'])$(key).checked=false;drawPattern();state.treatment.clear();state.treatmentAreas.clear();state.next.clear();state.trend='';pState.clear();selectedPresetId='';presetEverApplied=false;presetNeedsReview=false;drawBilling();for(const el of document.querySelectorAll('input:not([type=checkbox]),textarea,select')){el.value=el.id==='visitDate'?today():el.id==='insurance'?'건보':'';}drawMaps();drawAreaChips();drawRegionEditors();drawModules();for(const el of ['aDiagnosisChoices','assessmentChoices','trendChoices','treatChips','nextChips'])$(el).replaceChildren();drawCommon();setPlan('none');setMode('initial');$('presetCategory').value='기타';$('onsetCustomUnit').value='개월';drawOnsetQuick();renderPresets();render();toast('초기화 완료');}
+function reset(){if(!confirm('현재 입력값을 모두 초기화할까요?'))return;quickFocus={region:'',side:''};onsetRelative='';clearPrior();state.regions.clear();state.modules.clear();state.assessment.clear();state.aDiagnosis.clear();patternState.on=false;patternState.diag='';for(const s of Object.values(patternState.sets))s.clear();patternState.mechanisms.clear();for(const key of ['patternEnabled','patternClaimRequest'])$(key).checked=false;drawPattern();state.treatment.clear();state.treatmentAreas.clear();state.next.clear();state.trend='';pState.clear();selectedPresetId='';presetEverApplied=false;presetNeedsReview=false;drawBilling();for(const el of document.querySelectorAll('input:not([type=checkbox]),textarea,select')){el.value=el.id==='visitDate'?today():el.id==='insurance'?'건보':'';}drawMaps();drawAreaChips();drawRegionEditors();drawModules();for(const el of ['aDiagnosisChoices','assessmentChoices','trendChoices','treatChips','nextChips'])$(el).replaceChildren();drawCommon();setPlan('none');setMode('initial');$('presetCategory').value='기타';$('onsetCustomUnit').value='개월';drawOnsetQuick();renderPresets();quickDrawCards();quickDrawEditor();render();toast('초기화 완료');}
 for(const b of document.querySelectorAll('[data-mode]'))b.onclick=()=>setMode(b.dataset.mode);for(const b of document.querySelectorAll('[data-plan]'))b.onclick=()=>setPlan(b.dataset.plan);for(const el of document.querySelectorAll('input,textarea,select')){el.addEventListener('input',render);el.addEventListener('change',render);}document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();copySOAP()}});$('copyBtn').onclick=copySOAP;$('txtBtn').onclick=downloadTxt;$('resetBtn').onclick=reset;
 // Any user change to an imported P invalidates the one-time actual-treatment confirmation.
 $('insurance').addEventListener('change',()=>{if(state.plan==='billing')drawBilling();render();});
@@ -1114,7 +1283,7 @@ $('onsetDate').addEventListener('change',updateOnsetDate);
 $('onsetCustomCount').addEventListener('input',updateOnsetCustom);
 $('onsetCustomUnit').addEventListener('change',updateOnsetCustom);
 drawOnsetQuick();
-loadPresets();renderPresets();
+loadPresets();quickLoad();renderPresets();quickDrawCards();quickDrawEditor();
 drawMaps();drawAreaChips();drawRegionEditors();drawModules();drawCommon();drawPattern();drawBilling();setMode('initial');setPlan('billing');render();
 })();
 </script></body></html>
