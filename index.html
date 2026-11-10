@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v27</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v28</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -163,7 +163,7 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 .p-bundle-editor>summary{font-weight:800;font-size:13px;cursor:pointer;color:#276e63}
 .p-bundle-editor[open]>summary{margin-bottom:9px}
 </style></head><body>
-<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v27</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
+<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v28</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
 <main><div class="pane">
 <section class="section"><div class="section-title"><h2>01. 진료 기본정보</h2><span class="badge" id="dayflag">진료일 입력</span></div><div class="tabs" id="modeTabs"><button class="tab active" type="button" data-mode="initial">초진 SOAP</button><button class="tab" type="button" data-mode="followup">재진 간편</button><button class="tab" type="button" data-mode="weekly">주간 재평가</button><button class="tab" type="button" data-mode="extended">장기치료 평가</button></div><div class="grid three gap"><label class="field">진료 구분<select id="insurance"><option value="건보">건강보험</option><option value="자보">자동차보험</option><option value="일반">일반진료</option></select></label><label class="field">진료일<input type="date" id="visitDate"></label><label class="field hide" id="accidentBox">사고일<input type="date" id="accidentDate"></label></div><div class="grid gap"><div class="onset-section wide" id="onsetBox">
   <div class="onset-top">
@@ -879,21 +879,18 @@ const P_SPECIAL_PRECAUTIONS={
  spinal:'척추부 경혈의 일반 자침만으로 척추간침술로 산정하지 않습니다. 척추 신경·혈관 관련 위험을 확인하세요.',
  tuja:'투자법은 실제 투침한 경로를 기록하세요. 별개 혈위에 각각 자침한 것은 투자법에 해당하지 않습니다.'
 };
+// v28: the ONLY editable input for special acupuncture is the actually selected point / path.
 function specialPointPalette(host,k,p){
- const meta=P_SPECIAL_CLINICAL[k],regions=[...new Set([...state.regions.values()].map(o=>o.region))];
- const suggested=[...new Set(regions.flatMap(r=>meta.groups[r]||[]))];
- const panel=makePart('div','acu-action');
- panel.append(makePart('div','subhead','심평원 적용혈 참고 · '+meta.unit+' 클릭 선택'));
- panel.append(makePart('div','point-hint',suggested.length?'선택한 주소증/부위와 관련된 적용혈 '+suggested.length+'개를 먼저 표시합니다. 실제 시술 여부를 확인해 선택하세요.':'인체도에서 해당 부위를 선택하면 우선 표시할 적용혈이 나타납니다. 전체 목록은 아래에서 확인할 수 있습니다.'));
- if(suggested.length){const group=makePart('div','p-site-key');group.append(makePart('div','p-group-name','주소증에 따른 우선 선택지 ('+suggested.length+'개)'));pChips(group,suggested,p.points,()=>{});panel.append(group);}
- const toggle=makePart('button','tiny',p.expanded?'적용혈 전체 목록 접기':'해당 특수침술 전체 적용혈 보기 ('+meta.all.length+'개)');toggle.type='button';toggle.onclick=()=>{p.expanded=!p.expanded;drawBilling();};panel.append(toggle);
- if(p.expanded){const group=makePart('div','p-site-key');group.append(makePart('div','p-group-name','심평원 적용경혈 참고 목록'));pChips(group,meta.all,p.points,()=>{});panel.append(group);}
- if(p.points.size){pointSideBulk(panel,p);const box=makePart('div','point-side-list');box.append(makePart('div','subhead',k==='tuja'?'선택한 투자 경로 · 시술 측 선택':'선택한 적용혈 · 시술 측 선택'));
-  for(const pt of p.points){const item=makePart('div','point-side-item');item.append(makePart('span','',pt));const sel=document.createElement('select');sel.setAttribute('aria-label',pt+' 시술 측');for(const [v,label] of [['','좌우 미기록'],['좌','좌측'],['우','우측'],['양측','양측'],['정중','정중']])sel.add(new Option(label,v));sel.value=p.pointSides[pt]||'';sel.onchange=()=>{p.pointSides[pt]=sel.value;render();};item.append(sel);box.append(item);}panel.append(box);}
- const wrap=makePart('label','field gap',k==='tuja'?'직접 확인한 기타 투자 경로 (선택)':'추가로 확인한 자침 위치 (선택)');const inp=document.createElement('input');inp.placeholder=k==='tuja'?'예: 실제 시술 경혈 A-B':'예: 선택 목록 외 실제 자침 위치';inp.value=p.pointOther||'';inp.oninput=()=>{p.pointOther=inp.value;render()};wrap.append(inp);panel.append(wrap);
- panel.append(makePart('div','billrules',P_SPECIAL_PRECAUTIONS[k]+' 적용혈 선택만으로 해당 특수침술 시행이나 수가 인정이 확정되지 않습니다.'));
+ const meta=P_SPECIAL_CLINICAL[k],context=pBundleContext();
+ const suggested=[...new Set([...(meta.groups[context]||[]),...([...(state.regions.values())].flatMap(r=>meta.groups[r.region]||[]))])];
+ const ordered=[...new Set([...p.points,...suggested,...meta.all])];
+ const panel=makePart('div','acu-action special-simple');
+ panel.append(makePart('div','p-mini-heading','경혈점 선택 · '+p.points.size+'개 선택됨 · 다시 누르면 제외'));
+ pChips(panel,ordered,p.points,()=>{});
+ panel.append(makePart('div','quickv-mini','실제 시행한 혈위만 선택 · 특수침술의 실제 술기 및 산정 여부는 별도 확인'));
  host.append(panel);
 }
+
 const P_SPECIAL=new Set(['tuja','spinal','joint','peritoneal','orbital','nasal']);
 const P_ACUPUNCTURE=new Set(['acu','tuja','spinal','joint','peritoneal','orbital','nasal']);
 const P_KIND={simple:'단순추나(40710)',complex:'복잡추나(40720 · 청구유형 확인)',special:'특수(탈구)추나(40730)'};
@@ -1183,25 +1180,53 @@ function compactProcPoints(k,p,body){
 }
 function billItem(k){const info=P_META[k],p=getProc(k);const card=makePart('div','billitem enabled');card.dataset.proc=k;const head=makePart('div','billhead');const name=makePart('div','billtitle',info.name);name.append(makePart('span','billcode',info.code));const remove=makePart('button','tiny','선택 해제');remove.onclick=()=>{pState.delete(k);drawBilling();render()};head.append(name,remove);card.append(head);const body=makePart('div','billbody');body.dataset.proc=k;
  if(P_COMPACT_PROCS.has(k)&&!compactProcPoints(k,p,body)){card.append(body);return card;}
- if(p.autoDraft&&p.autoPoints?.size)body.append(makePart('div','p-autodraft','추천 초안입니다. 실제 시술한 혈위만 남기세요.'));
+ if(p.autoDraft&&p.autoPoints?.size&&!P_SPECIAL.has(k))body.append(makePart('div','p-autodraft','추천 초안입니다. 실제 시술한 혈위만 남기세요.'));
  if(k==='acu'){pMacroBlock(body,k,p);procPointPalette(body,k,p);pMethodsBlock(body,k,p);}
  else if(k==='wet'){pMacroBlock(body,k,p);procPointPalette(body,k,p);pMethodsBlock(body,k,p);}
  else if(k==='dry'){pMacroBlock(body,k,p);procPointPalette(body,k,p);pMethodsBlock(body,k,p);}
  else if(k==='pharma'){pMacroBlock(body,k,p);pDrugBlock(body,k,p);}
  else if(k==='chuna'){pChunaBlock(body,p);pRegionBlock(body,k,p);}
  else if(k==='ict'){pICTBlock(body,p);}
- else if(P_SPECIAL.has(k)){pRegionBlock(body,k,p);specialPointPalette(body,k,p);pField(body,k==='tuja'?'실제 투침 방향·경로 및 방법 추가기록':'일반 경혈침술과 구분되는 실제 시술 방법·위치','detail',k==='tuja'?'예: 선택한 혈위 간 실제 투침방향과 시술 소견':'예: 해부학적 시술 위치, 실제 적용한 술기와 시술 후 확인 사항');}
+ else if(P_SPECIAL.has(k)){specialPointPalette(body,k,p);card.append(body);return card;}
  else{if(!(k==='electro'||k.startsWith('moxa')))pRegionBlock(body,k,p);if(k==='electro'||k.startsWith('moxa'))procPointPalette(body,k,p);pMethodsBlock(body,k,p);}
  if(k==='electro'){pField(body,'전극 연결 혈위·쌍 (필요하면 구체적으로)','detail','예: 우측 견우-견료, 좌측 신수-대장수');pField(body,'주파수 Hz (확인한 경우)','stimFrequency','예: 2/100Hz');}
  if(k.startsWith('moxa')){if(k==='moxaDirect')body.append(makePart('div','billtiny','직접애주구 기본 5장 · 실제 장수가 다르면 아래에서 수정'));pField(body,k==='moxaDirect'?'시행 장수 (기본 5장)':'시행 장수/회수 (선택)','count',k==='moxaDirect'?'예: 5장':'예: 2회');}
  if(['ir','heat','cold','electro'].includes(k))pField(body,'실제 조사/자극 시간 (선택)','count','예: 10분');
  pResultBlock(body,k,p);
  body.append(makePart('div','billrules',info.rule));card.append(body);return card;}
+// v28: site-dependent special-point drafts for the routinely selected procedure bundles.
+// These are editable point suggestions, not confirmation of joint-cavity / through-point technique.
+const P_BUNDLE_SPECIAL_POINTS={
+ shoulder:{tuja:'견료-극천',joint:'견우(LI15)',spinal:'대추(GV14)'},
+ neck:{tuja:'풍지-풍부',joint:'견우(LI15)',spinal:'대추(GV14)'},
+ back:{tuja:'삼음교-현종',joint:'환도(GB30)',spinal:'명문(GV4)'},
+ hip:{tuja:'삼음교-현종',joint:'환도(GB30)',spinal:'명문(GV4)'},
+ knee:{tuja:'양릉천-음릉천',joint:'독비(ST35)',spinal:'요양관(GV3)'},
+ ankle:{tuja:'곤륜-태계',joint:'구허(GB40)',spinal:'요양관(GV3)'},
+ elbow:{tuja:'곡지-수삼리',joint:'곡지(LI11)',spinal:'대추(GV14)'},
+ wrist:{tuja:'내관-외관',joint:'양계(LI5)',spinal:'대추(GV14)'},
+ thoracic:{tuja:'풍지-풍부',joint:'견우(LI15)',spinal:'신주(GV12)'},
+ head:{tuja:'풍지-풍부',joint:'상관(GB3)',spinal:'대추(GV14)'},
+ abdomen:{tuja:'내관-외관',joint:'견우(LI15)',spinal:'대추(GV14)'},
+ chest:{tuja:'내관-외관',joint:'견우(LI15)',spinal:'신주(GV12)'}
+};
+function pAutoFillSpecial(k){
+ const p=getProc(k);
+ // No preselection for potentially high-risk orbital, peritoneal and nasal needling.
+ if(!['tuja','joint','spinal'].includes(k))return p;
+ const region=pBundleContext();
+ const point=P_BUNDLE_SPECIAL_POINTS[region]?.[k];
+ if(point&&P_SPECIAL_CLINICAL[k].all.includes(point)){
+  p.points.add(point);p.autoPoints=new Set([point]);p.autoDraft=true;
+ }
+ return p;
+}
 // v22: procedure add action starts from a small editable recommendation DRAFT.
 // Never mutate saved treatment presets; auto-selection applies only to a newly added procedure.
 const P_AUTOFILL_KEYS=new Set(['acu','electro','wet','dry','pharma','moxaDirect','moxaIndirect','moxaDevice']);
 function pAutoAdd(k){
  const p=getProc(k);
+ if(P_SPECIAL.has(k))return pAutoFillSpecial(k);
  if(!P_AUTOFILL_KEYS.has(k))return p;
  const groups=pRecommendedGroups();const pool=[];const max=k==='electro'?2:k==='acu'?4:2;
  for(const [_,pts] of groups){for(const pt of pts.slice(0,k==='acu'?3:2)){
@@ -1237,7 +1262,7 @@ function pBundleActualMacros(k,p){
 }
 function pBundleMacroCount(p,k){return pBundleActualMacros(k,p).size;}
 function pBundleTarget(k){const b=P_BUNDLES.find(x=>x.id===pBundleActive);return b&&pState.has(k)?Number(b[k]||0):0;}
-// v27: clinician-configured default anatomical routines. Applied as a fully editable
+// v28: clinician-configured default anatomical routines. Applied as a fully editable
 // P draft when a bundle is selected; not saved into patient- or browser-specific presets.
 // The labels use the existing five insurance macro regions. 경항부 = 후경부 (두·경부).
 const P_BUNDLE_ROUTINE_SITES={
@@ -1359,7 +1384,7 @@ function pBundleApply(id){
  pBundleUndo={procs:new Map(pState),patternOn:$('patternEnabled').checked,previousPreset:selectedPresetId};
  pState.clear();selectedPresetId='';
  for(const key of b.keys){
-  if(P_AUTOFILL_KEYS.has(key))pAutoAdd(key);else getProc(key);
+  if(P_AUTOFILL_KEYS.has(key)||P_SPECIAL.has(key))pAutoAdd(key);else getProc(key);
   const p=getProc(key);
   if(key==='acu')pBundleFillSites(key,b.acu||2);
   if(key==='wet')pBundleFillSites(key,b.wet||1);
@@ -1370,8 +1395,7 @@ function pBundleApply(id){
    p.chunaKind='simple';p.chunaModes.add('근막이완');
    const targets=pChunaTargets();if(targets.length)p.chunaMuscles.add(targets[0]);
   }
-  // Special acupuncture is never automatically asserted as performed.
-  // Clinician must enter actual site and technique for P output.
+  // Special points begin as editable suggestions; only selected points appear in P.
  }
  if(b.pattern){$('patternEnabled').checked=true;patternState.on=true;}
  pBundleActive=id;setPlan('billing');$('pBundleEditorDetails').open=false;
@@ -1398,8 +1422,8 @@ function pBundleRender(){
   }
   if(bundle.ict&&pState.has('ict')){const got=normalizedIctSites(pState.get('ict').sites).length;checks.push('ICT 기본 '+bundle.ict+'부위 · 선택 '+got+'/'+bundle.ict+(got<bundle.ict?' · 부착 위치 확인 필요':''));}
   
-  const pending=[...pState.keys()].filter(k=>P_SPECIAL.has(k)&&(!pState.get(k).points.size||k!=='tuja'&&!pState.get(k).detail.trim()));
-  if(pending.length)checks.push('특수침술 '+pending.length+'종: 실제 적용혈·술기 입력 전에는 P에 출력되지 않음');
+  const pending=[...pState.keys()].filter(k=>P_SPECIAL.has(k)&&!pState.get(k).points.size);
+  if(pending.length)checks.push('특수침술 '+pending.length+'종: 경혈 미선택 · 적용혈 선택 시 P 기록');
   if(bundle.id==='pharmaRoute')checks.push('※ 이 세트에는 요청하신 목록대로 실제 약침술은 포함하지 않음 (개별 추가 가능)');
   if(bundle.id==='carChuna')checks.push('추나: 치료 전·후 평가를 별도로 입력');
   for(const line of checks)status.append(makePart('div',line.includes('필요')||line.includes('출력되지')?'bundle-attention':'',line));
@@ -1557,12 +1581,11 @@ function procLabel(k,p){
  if(k==='ict')return '경근간섭저주파요법(ICT · 자보 한방물리요법)';
  if(k==='chuna')return p.chunaKind?P_KIND[p.chunaKind]:'추나요법(유형 미선택)';return P_META[k].name+'('+P_META[k].code+')';
 }
-function billingP(){const arr=[];for(const [k,p]of pState){if(k==='ict'&&val('insurance')!=='자보')continue;if(P_SPECIAL.has(k)&&(!p.areas.size&&!p.places.trim()&&!p.points.size&&!p.pointOther.trim()||!p.points.size&&!p.pointOther.trim()||k!=='tuja'&&!p.detail.trim()))continue;
+function billingP(){const arr=[];for(const [k,p]of pState){if(k==='ict'&&val('insurance')!=='자보')continue;if(P_SPECIAL.has(k)&&!p.points.size&&!p.pointOther.trim())continue;
  const bits=[];
  if(k==='ict'){if(p.sites.size)bits.push('전극 부착 위치: '+normalizedIctSites(p.sites).join(', '));if(p.places.trim())bits.push('추가 부착 위치: '+sanitize(p.places));}
  if(k!=='ict'&&k!=='chuna'){
-  if(k==='tuja')bits.push('투침 경로: '+pointText(p));
-  else if(P_SPECIAL.has(k))bits.push(...pointLocationLines(k,p));
+  if(P_SPECIAL.has(k))bits.push((k==='tuja'?'투자 경혈: ':'선택 경혈: ')+pointText(p));
   else bits.push(...pointLocationLines(k,p));
  }
  if(k==='chuna'&&recordedPNames(p).length&&!p.chunaModes.size)bits.push('시술위치: '+recordedPNames(p).join(', '));
@@ -1582,7 +1605,7 @@ function billingP(){const arr=[];for(const [k,p]of pState){if(k==='ict'&&val('in
   if(p.chunaPreNRS!==''&&p.chunaPostNRS!=='')bits.push('NRS 비교: '+p.chunaPreNRS+' → '+p.chunaPostNRS);
  }
  if(k==='pharma'){if(p.drugConcentration)bits.push('제제: '+sanitize(p.drugConcentration));if(p.drugAmount)bits.push('총 '+p.drugAmount+'cc');}
- if(p.detail.trim())bits.push('시술 상세: '+sanitize(p.detail));if(k==='electro'&&p.stimFrequency.trim())bits.push('주파수: '+sanitize(p.stimFrequency));
+ if(p.detail.trim()&&!P_SPECIAL.has(k))bits.push('시술 상세: '+sanitize(p.detail));if(k==='electro'&&p.stimFrequency.trim())bits.push('주파수: '+sanitize(p.stimFrequency));
  if(p.count.trim())bits.push((k==='moxaDirect'?'시구: ':'횟수/시간: ')+sanitize(p.count));if(p.result.trim())bits.push('시술 후 반응: '+sanitize(p.result));arr.push(procLabel(k,p)+(bits.length?'\n    '+bits.join('\n    '):'\n    세부내역 미입력'));}return arr;}
 function billingIssues(){
  const issues=[];
@@ -1599,7 +1622,7 @@ function billingIssues(){
    continue;
   }
   if(P_SPECIAL.has(k)){
-   if(!p.points.size&&!p.pointOther.trim()||k!=='tuja'&&!p.detail.trim())issues.push(name+': 적용혈·실제 술기 보완');
+   if(!p.points.size&&!p.pointOther.trim())issues.push(name+': 실제 적용혈 선택 필요');
    continue;
   }
   if(['acu','electro','wet','dry','pharma'].includes(k)&&!p.points.size&&!p.pointOther.trim())issues.push(name+': 실제 시술 혈위/위치 선택');
