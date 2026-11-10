@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v26</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v27</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -157,10 +157,13 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 .p-bundle-site-quick .chip{padding:6px 9px;font-size:11px}
 .p-bundle-selected .chip{font-size:11px;padding:5px 8px}
 .p-bundle-editor{border:1px solid #d8e5e2;border-radius:11px;padding:9px 11px;margin:10px 0;background:#fff}
+.p-bundle-exceptions{margin-top:7px;border:1px solid #d7e7e2;background:#f8fcfa;border-radius:8px;padding:6px 9px}
+.p-bundle-exceptions>summary{cursor:pointer;font-size:11px;font-weight:700;color:#356f65}
+.p-bundle-exceptions .p-bundle-site-quick{background:white}
 .p-bundle-editor>summary{font-weight:800;font-size:13px;cursor:pointer;color:#276e63}
 .p-bundle-editor[open]>summary{margin-bottom:9px}
 </style></head><body>
-<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v26</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
+<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v27</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
 <main><div class="pane">
 <section class="section"><div class="section-title"><h2>01. 진료 기본정보</h2><span class="badge" id="dayflag">진료일 입력</span></div><div class="tabs" id="modeTabs"><button class="tab active" type="button" data-mode="initial">초진 SOAP</button><button class="tab" type="button" data-mode="followup">재진 간편</button><button class="tab" type="button" data-mode="weekly">주간 재평가</button><button class="tab" type="button" data-mode="extended">장기치료 평가</button></div><div class="grid three gap"><label class="field">진료 구분<select id="insurance"><option value="건보">건강보험</option><option value="자보">자동차보험</option><option value="일반">일반진료</option></select></label><label class="field">진료일<input type="date" id="visitDate"></label><label class="field hide" id="accidentBox">사고일<input type="date" id="accidentDate"></label></div><div class="grid gap"><div class="onset-section wide" id="onsetBox">
   <div class="onset-top">
@@ -1234,12 +1237,63 @@ function pBundleActualMacros(k,p){
 }
 function pBundleMacroCount(p,k){return pBundleActualMacros(k,p).size;}
 function pBundleTarget(k){const b=P_BUNDLES.find(x=>x.id===pBundleActive);return b&&pState.has(k)?Number(b[k]||0):0;}
-// These one-tap choices are clinician-confirmed locations, not automatic additions.
+// v27: clinician-configured default anatomical routines. Applied as a fully editable
+// P draft when a bundle is selected; not saved into patient- or browser-specific presets.
+// The labels use the existing five insurance macro regions. 경항부 = 후경부 (두·경부).
+const P_BUNDLE_ROUTINE_SITES={
+ shoulder:['경항부','상지부'],neck:['경항부','상지부'],
+ back:['요배부','하지부'],hip:['요배부','하지부'],knee:['하지부','요배부'],ankle:['하지부','요배부'],
+ abdomen:['흉복부','상지부'],head:['경항부','상지부'],
+ thoracic:['경항부','요배부'],chest:['흉복부','상지부'],
+ elbow:['상지부','경항부'],wrist:['상지부','경항부']
+};
+const P_BUNDLE_ROUTINE_POINTS={
+ shoulder:{'경항부':'견정(GB21)','상지부':'견우(LI15)'},
+ neck:{'경항부':'풍지(GB20)','상지부':'합곡(LI4)'},
+ back:{'요배부':'신수(BL23)','하지부':'위중(BL40)'},
+ hip:{'요배부':'대장수(BL25)','하지부':'환도(GB30)'},
+ knee:{'하지부':'독비(ST35)','요배부':'신수(BL23)'},
+ ankle:{'하지부':'곤륜(BL60)','요배부':'신수(BL23)'},
+ abdomen:{'흉복부':'중완(CV12)','상지부':'내관(PC6)'},
+ head:{'경항부':'풍지(GB20)','상지부':'합곡(LI4)'},
+ thoracic:{'경항부':'견정(GB21)','요배부':'천종(SI11)'},
+ chest:{'흉복부':'전중(CV17)','상지부':'내관(PC6)'},
+ elbow:{'상지부':'곡지(LI11)','경항부':'견정(GB21)'},
+ wrist:{'상지부':'외관(TE5)','경항부':'풍지(GB20)'}
+};
+const P_BUNDLE_ICT_ROUTINES={
+ shoulder:['양측 경항부','양측 견관절 주위'],neck:['양측 경항부','양측 상부승모근'],
+ back:['양측 요부','양측 천장관절부'],hip:['양측 요부','양측 둔부'],
+ knee:['양측 슬관절부','양측 하퇴부'],ankle:['양측 족관절부','양측 하퇴부'],
+ abdomen:['흉곽부','양측 상완부'],head:['양측 경항부','양측 견갑부'],
+ thoracic:['흉추부','견갑간부'],chest:['흉곽부','양측 견갑부'],
+ elbow:['양측 주관절부','양측 상완부'],wrist:['양측 완관절부','양측 전완부']
+};
+function pBundleContext(){
+ // Prioritize the region currently used in the quick examination; otherwise use
+ // an explicitly marked body-map region and then a non-musculoskeletal module.
+ const picked=[...state.regions.values()].map(x=>x.region);
+ if(quickFocus.region&&picked.includes(quickFocus.region))return quickFocus.region;
+ if(picked.length)return picked[0];
+ if(state.modules.has('dyspepsia'))return 'abdomen';
+ if(state.modules.has('headache')||state.modules.has('dizziness'))return 'head';
+ if(quickFocus.region)return quickFocus.region;
+ return '';
+}
+function pBundleRoutineSites(){return P_BUNDLE_ROUTINE_SITES[pBundleContext()]||[];}
+function pBundleRoutinePoint(context,site){
+ const requested=P_BUNDLE_ROUTINE_POINTS[context]?.[site];
+ if(requested&&pAnatomicalMacro(requested)===P_SITE_MACRO[site])return requested;
+ const macro=P_SITE_MACRO[site];
+ return (P_PRESET_V8[context]||[]).find(pt=>pAnatomicalMacro(pt)===macro)
+  ||(P_SITE_POINTS[site]||[]).find(pt=>pAnatomicalMacro(pt)===macro)||'';
+}
+// Fast site choices remain available for exceptions, but routine sites are preselected.
 const P_BUNDLE_FAST_ICT=['양측 경항부','양측 견관절 주위','양측 견갑부','양측 요부','양측 천장관절부','양측 주관절부','양측 슬관절부','양측 족관절부'];
 function pBundleIctQuick(target){
  const p=pState.get('ict');if(!p||!target)return null;
  const box=makePart('div','p-bundle-site-quick'),got=normalizedIctSites(p.sites).length;
- box.append(makePart('span','micro','ICT · 세트 기본 '+target+'부위 / 실제 전극 위치 '+got+'곳. 실제 부착한 위치만 선택하세요.'));
+ box.append(makePart('span','micro','ICT · 부위별 기본 '+target+'곳 / 현재 선택 '+got+'곳. 실제 전극 위치가 다르면 수정하세요.'));
  const row=makePart('div','chips');
  for(const site of P_BUNDLE_FAST_ICT){
   const on=normalizedIctSites(p.sites).includes(site);
@@ -1252,7 +1306,7 @@ function pBundleLocationQuick(k,target,label){
  const p=pState.get(k);if(!p||!target)return null;
  const box=makePart('div','p-bundle-site-quick');
  const chosen=pBundleActualMacros(k,p),got=chosen.size;
- box.append(makePart('span','micro',label+' · 세트 기본 '+target+'부위 / 실제 위치 '+got+'부위. 실제 시술한 곳만 선택하세요.'));
+ box.append(makePart('span','micro',label+' · 부위별 기본 '+target+'곳 / 현재 선택 '+got+'곳. 실제 시술이 다르면 수정하세요.'));
  const row=makePart('div','chips');
  for(const site of P_BUNDLE_FAST_SITES){
   const macro=P_SITE_MACRO[site],selected=p.sites.has(site),fromPoint=[...p.points].some(pt=>pAnatomicalMacro(pt)===macro);
@@ -1276,33 +1330,28 @@ function pBundleSuggestedPoints(limit){
 function pBundleFillSites(k,target){
  const p=getProc(k);
  p.points.clear();p.pointSides={};p.macro.clear();p.sites.clear();
- const picked=[];const uniqueMacros=new Set();
- if(k==='wet'||k==='pharma'){
-  // Cupping/injection draft locations are restricted to the patient's actually selected body regions.
-  // Distal acupuncture recommendations are NOT evidence of a second cupping or injection site.
-  const bodyMacro={head:'두·경부',neck:'두·경부',chest:'흉·복부',abdomen:'흉·복부',back:'요·배부',thoracic:'요·배부',shoulder:'상지부',elbow:'상지부',wrist:'상지부',hip:'하지부',knee:'하지부',ankle:'하지부'};
-  for(const r of state.regions.values()){
-   const macro=bodyMacro[r.region];if(!macro||uniqueMacros.has(macro))continue;
-   const candidates=[...(P_PRESET_V8[r.region]||[]),...(P_SITE_POINTS[Object.keys(P_SITE_MACRO).find(s=>P_SITE_MACRO[s]===macro)]||[])];
-   const pt=candidates.find(x=>pAnatomicalMacro(x)===macro);
-   if(!pt)continue;picked.push(pt);uniqueMacros.add(macro);if(uniqueMacros.size>=target)break;
-  }
- }else{
-  const points=pBundleSuggestedPoints(4);
-  for(const point of points){const macro=pAnatomicalMacro(point);if(!macro||uniqueMacros.has(macro))continue;
-   picked.push(point);uniqueMacros.add(macro);if(uniqueMacros.size>=target)break;
-  }
-  for(const point of points)if(!picked.includes(point))picked.push(point);
+ const context=pBundleContext(),routine=pBundleRoutineSites();
+ // For a 2-region procedure always begin with the two predefined, distinct
+ // anatomical regions for the selected complaint. General acupuncture/wet
+ // cupping with a 1-region target takes only the first routine site.
+ const selected=routine.slice(0,Math.max(1,target));
+ for(const site of selected){
+  const macro=P_SITE_MACRO[site],pt=pBundleRoutinePoint(context,site);
+  if(['wet','pharma'].includes(k))p.sites.add(site);
+  if(macro)p.macro.add(macro);
+  if(pt)p.points.add(pt);
  }
- for(const pt of picked){p.points.add(pt);const macro=pAnatomicalMacro(pt);if(macro)p.macro.add(macro);}
- if(k==='wet'||k==='pharma'){
-  for(const macro of uniqueMacros){const site=Object.keys(P_SITE_MACRO).find(s=>P_SITE_MACRO[s]===macro);if(site)p.sites.add(site);}
+ if(!selected.length){
+  // No region has been selected: do not invent treatment sites.
+  // Non-bundle recommendations may still be edited in the detailed P editor.
+  p.autoDraft=true;p.autoPoints=new Set();return p;
  }
  p.autoDraft=true;p.autoPoints=new Set(p.points);return p;
 }
 function pBundleFillIct(p,max){
- const sites=ictSuggestedSites();for(const site of sites.slice(0,max))p.sites.add(site);
- // If fewer than the requested number of distinct *actually selected* body areas, do not fabricate placements.
+ const context=pBundleContext();
+ const sites=P_BUNDLE_ICT_ROUTINES[context]||[];
+ for(const site of sites.slice(0,max))p.sites.add(site);
 }
 function pBundleApply(id){
  const b=P_BUNDLES.find(x=>x.id===id);if(!b)return;
@@ -1326,7 +1375,7 @@ function pBundleApply(id){
  }
  if(b.pattern){$('patternEnabled').checked=true;patternState.on=true;}
  pBundleActive=id;setPlan('billing');$('pBundleEditorDetails').open=false;
- drawBilling();renderPresets();render();toast('「'+b.name+'」 P 초안 적용 · 실제 시술에 맞게 수정하세요.');
+ drawBilling();renderPresets();render();toast('「'+b.name+'」 부위별 2부위 루틴 자동선택 · 다른 치료는 수정하세요.');
 }
 function pBundleRestore(){if(!pBundleUndo)return;
  pState.clear();for(const [k,p] of pBundleUndo.procs)pState.set(k,p);
@@ -1345,22 +1394,29 @@ function pBundleRender(){
  if(pBundleActive){const bundle=P_BUNDLES.find(x=>x.id===pBundleActive);status.append(makePart('strong','','「'+bundle.name+'」 적용 · '+pState.size+'개 시술 초안 선택'));
   const checks=[];
   for(const [k,target,label] of [['acu',bundle.acu,'경혈침술'],['wet',bundle.wet,'자락관법'],['pharma',bundle.pharma,'소염약침']]){
-   if(!target||!pState.has(k))continue;const got=pBundleMacroCount(pState.get(k),k);checks.push(label+' 세트 '+target+'부위 · 실제 위치 '+got+'/'+target+(got<target?' · 위치 추가 필요':''));
+   if(!target||!pState.has(k))continue;const got=pBundleMacroCount(pState.get(k),k);checks.push(label+' 기본 '+target+'부위 · 선택 '+got+'/'+target+(got<target?' · 치료 부위 확인 필요':''));
   }
-  if(bundle.ict&&pState.has('ict')){const got=normalizedIctSites(pState.get('ict').sites).length;checks.push('ICT 세트 '+bundle.ict+'부위 · 실제 부착 위치 '+got+'/'+bundle.ict+(got<bundle.ict?' · 부착 위치 추가 필요':''));}
+  if(bundle.ict&&pState.has('ict')){const got=normalizedIctSites(pState.get('ict').sites).length;checks.push('ICT 기본 '+bundle.ict+'부위 · 선택 '+got+'/'+bundle.ict+(got<bundle.ict?' · 부착 위치 확인 필요':''));}
   
   const pending=[...pState.keys()].filter(k=>P_SPECIAL.has(k)&&(!pState.get(k).points.size||k!=='tuja'&&!pState.get(k).detail.trim()));
   if(pending.length)checks.push('특수침술 '+pending.length+'종: 실제 적용혈·술기 입력 전에는 P에 출력되지 않음');
   if(bundle.id==='pharmaRoute')checks.push('※ 이 세트에는 요청하신 목록대로 실제 약침술은 포함하지 않음 (개별 추가 가능)');
   if(bundle.id==='carChuna')checks.push('추나: 치료 전·후 평가를 별도로 입력');
   for(const line of checks)status.append(makePart('div',line.includes('필요')||line.includes('출력되지')?'bundle-attention':'',line));
-  // Place missing-area shortcuts here; no need to open the detailed P form.
+  // Ordinary visits need zero follow-up clicks; keep exception controls folded.
+  const exception=makePart('details','p-bundle-exceptions');
+  const routine=pBundleRoutineSites();
+  exception.append(makePart('summary','','치료부위가 다른 날만 변경 (자락·약침·ICT)'));
+  if(routine.length)exception.append(makePart('div','micro','기본 자동선택: '+routine.join(' + ')+' · 실제 치료와 다르면 수정하세요.'));
+  else exception.append(makePart('div','bundle-attention','주소증 부위를 먼저 선택하면 1·2부위가 자동으로 채워집니다.'));
+  let canEdit=false;
   for(const [k,target,label] of [['wet',bundle.wet,'자락관법'],['pharma',bundle.pharma,'소염약침']]){
-   if(target>=2&&pState.has(k)){
-    const panel=pBundleLocationQuick(k,target,label);if(panel)status.append(panel);
-   }
+   if(target&&pState.has(k)){const panel=pBundleLocationQuick(k,target,label);if(panel){exception.append(panel);canEdit=true;}}
   }
-  if(bundle.ict&&pState.has('ict')){const panel=pBundleIctQuick(bundle.ict);if(panel)status.append(panel);}
+  if(bundle.ict&&pState.has('ict')){const panel=pBundleIctQuick(bundle.ict);if(panel){exception.append(panel);canEdit=true;}}
+  if(canEdit)status.append(exception);
+  if(!routine.length){exception.open=true;}
+
  }else status.append(makePart('span','','추천조합 선택 → 실제 치료 위치·혈위를 확인하고 필요 없는 시술만 제거하세요.'));
  if(pBundleUndo){const undo=makePart('button','tiny','이전 P 되돌리기');undo.type='button';undo.onclick=pBundleRestore;status.append(undo);}
  const summary=$('pBundleSelected');summary.replaceChildren();if(!pState.size)return;
