@@ -1,4 +1,4 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v29</title>
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light"><title>OK차트 SOAP 임상 시술기록 도우미 v30</title>
 <style>
 :root{--bg:#f1f5f6;--card:#fff;--line:#dce5e7;--text:#1b3036;--muted:#687c83;--teal:#076d65;--teal-lite:#e8f6f2;--warn:#fff6e8;--warn-border:#efd8ab;--coral:#bd5a4f;--shadow:0 5px 26px #21434b0a}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13.5px/1.5 system-ui,'Malgun Gothic','Apple SD Gothic Neo',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #7abfb7;outline-offset:2px}header{background:#143d45;border-bottom:4px solid #168879;color:white;padding:22px max(18px,calc((100vw - 1480px)/2))}.headflex{display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}header h1{margin:2px 0 4px;font-size:23px;letter-spacing:-.05em}header p{margin:0;color:#c6e0df;font-size:12.5px}.kicker{font-size:10px;font-weight:800;letter-spacing:.14em;color:#9cdad2}.offline{border:1px solid #4a8584;border-radius:20px;padding:7px 11px;font-size:12px;white-space:nowrap}
@@ -173,8 +173,16 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 .p-bundle-detail-actions .tiny{padding:3px 6px;font-size:10px}
 .p-bundle-detail-site{font-size:11px;color:#31504c;line-height:1.5;overflow-wrap:anywhere}
 .p-bundle-detail-missing{font-size:11px;color:#a65c26}
+
+/* v30: 날짜별 경과와 무날짜 초진 기준 기록 분리 */
+.prior-timeline{display:grid;gap:7px;margin:8px 0 11px}
+.prior-timeline-row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;padding:9px 10px;border:1px solid #e2ebeb;border-radius:9px;background:#f8fbfb;font-size:12px;align-items:start}
+.prior-timeline-date{font-weight:800;color:#315d58;font-variant-numeric:tabular-nums}
+.prior-timeline-note{white-space:pre-wrap;word-break:break-word;max-height:130px;overflow:auto;line-height:1.55}
+.prior-timeline-empty{color:#87949a;font-style:italic}
+@media(max-width:520px){.prior-timeline-row{grid-template-columns:65px minmax(0,1fr);gap:7px;padding:8px}}
 </style></head><body>
-<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v29</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
+<header><div class="headflex"><div><div class="kicker">CLINICAL NOTE BUILDER · OKCHART WORKFLOW</div><h1>SOAP 보디맵·보험 시술기록 도우미 <span style="font-size:12px;opacity:.8">v30</span></h1><p>인체도·다빈도 문진·건보 시술기록·변증기술료 소견을 클릭으로 작성합니다.</p></div><div class="offline">● 오프라인 · 환자정보 외부 전송 없음</div></div></header>
 <main><div class="pane">
 <section class="section"><div class="section-title"><h2>01. 진료 기본정보</h2><span class="badge" id="dayflag">진료일 입력</span></div><div class="tabs" id="modeTabs"><button class="tab active" type="button" data-mode="initial">초진 SOAP</button><button class="tab" type="button" data-mode="followup">재진 간편</button><button class="tab" type="button" data-mode="weekly">주간 재평가</button><button class="tab" type="button" data-mode="extended">장기치료 평가</button></div><div class="grid three gap"><label class="field">진료 구분<select id="insurance"><option value="건보">건강보험</option><option value="자보">자동차보험</option><option value="일반">일반진료</option></select></label><label class="field">진료일<input type="date" id="visitDate"></label><label class="field hide" id="accidentBox">사고일<input type="date" id="accidentDate"></label></div><div class="grid gap"><div class="onset-section wide" id="onsetBox">
   <div class="onset-top">
@@ -207,7 +215,7 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
 </section>
 <section class="section" id="priorSection">
  <div class="section-title"><h2>01-2. 기존 OK차트 분석 → 재진 자동 초안</h2><span class="badge">v7 신규</span></div>
- <p class="hint">과거 차트를 그대로 붙여넣으면 증상·진단·NRS·ROM·검사·치료 경과를 추출합니다. 여러 날짜 기록을 한 번에 넣어도 됩니다. <strong>이전 진찰 결과를 오늘 결과로 자동 복제하지 않습니다.</strong></p>
+ <p class="hint">과거 차트를 그대로 붙여넣으면 날짜별 경과와 맨 아래 초진 기본기록(LBP / onset / mode / ROM)을 구분해 읽습니다. `11.3>`와 `11.13>>` 형식 모두 인식합니다. <strong>이전 진찰 결과를 오늘 결과로 자동 복제하지 않습니다.</strong></p>
  <div class="priorbox">
   <label class="field">기존 환자 차트 붙여넣기
    <textarea id="priorRaw" rows="9" placeholder="예시) 10.28 >> 요통 약호전, NRS 5/10, SLR(-/-)&#10;10.21 >> S: 요통 및 좌측 둔부 당김, NRS 7&#10;O: 요추 굴곡 40° 제한, SLR(-/-)&#10;A: 요추부 염좌&#10;P: 요부 침·부항 치료" style="min-height:150px"></textarea>
@@ -216,6 +224,8 @@ main{max-width:1480px;margin:0 auto;padding:17px;display:grid;grid-template-colu
   <div id="priorResult" class="prior-result" aria-live="polite">
    <div class="section-title"><h3>분석된 전회 진료정보</h3><span class="micro" id="priorQuality"></span></div>
    <div class="prior-meta" id="priorStats"></div>
+   <div class="prior-suggest"><h4>날짜별 경과기록 (이전 차트 · 금일 소견 자동 전송 없음)</h4><div id="priorTimeline" class="prior-timeline"></div></div>
+   <div class="prior-suggest"><h4>초진 기본기록 (맨 아래 LBP / Onset / Mode / ROM)</h4><div id="priorBaseline" class="prior-snippet"></div></div>
    <div class="prior-suggest"><h4>이전 기록에서 발견한 주증상 — 오늘도 확인했다면 클릭</h4><div class="chips" id="priorSymptomChips"></div></div>
    <div class="prior-suggest"><h4>과거 기록에 등장한 부위 — 오늘 진찰할 곳만 추가</h4><div class="chips" id="priorAreaChips"></div></div>
    <div class="prior-suggest"><h4>기존 진단 / 평가 (자동으로 확정하지 않음)</h4><div class="prior-snippet" id="priorDiagText"></div>
@@ -1719,11 +1729,11 @@ function billingIssues(){
  return [...new Set(issues)].slice(0,6);
 }
 
-// -- v7: OK차트 이전 기록 분석 · 실제 재진확인 기반 초안 --
-const priorState={analyzed:false,visits:[],previousDate:'',reference:'',latest:'',symptoms:[],regions:[],nrs:'',nrsDate:'',os:[],diagnosis:'',procedure:'',chosenSymptoms:new Set(),dxConfirmed:false,includeBackground:false,compareConfirmed:false,hasUncertainDate:false};
+// -- v30: 날짜별 자유기록 + 맨 아래 초진 기본기록 동시 분석 (이전 검사값을 금일 검사로 자동 복사하지 않음) --
+const priorState={analyzed:false,visits:[],previousDate:'',reference:'',latest:'',symptoms:[],regions:[],nrs:'',nrsDate:'',os:[],diagnosis:'',procedure:'',chosenSymptoms:new Set(),dxConfirmed:false,includeBackground:false,compareConfirmed:false,hasUncertainDate:false,baseline:'',baselineOnset:'',baselineMode:'',baselineChief:'',baselineOther:[],lastMeaningfulDate:''};
 const PRIOR_TERMS=[
  {tag:'요통',re:/(요통|요부|요추|허리|LBP|low back)/i,region:'back'},
- {tag:'경항통',re:/(경항통|경부|경추|후경부|목통증|목 통증|nuchal)/i,region:'neck'},
+ {tag:'경항통',re:/(경항통|경부|경추|후경부|목통증|목 통증|nuchal|neck pain)/i,region:'neck'},
  {tag:'어깨통증',re:/(견관절|견부|어깨|견갑부|shoulder)/i,region:'shoulder'},
  {tag:'손목통증',re:/(손목|완관절|TFCC|수근관)/i,region:'wrist'},
  {tag:'팔꿈치통증',re:/(주관절|팔꿈치|외상과|내상과)/i,region:'elbow'},
@@ -1741,24 +1751,58 @@ const PRIOR_TERMS=[
  {tag:'변비',re:/(변비|배변곤란|잔변감)/i,region:null},
  {tag:'저림·방사통',re:/(저림|방사통|rad\(\+|radicul)/i,region:null}
 ];
-function priorDateInfo(line){const m=line.match(/^\s*((?:20\d{2}[./-])?\d{1,2}[./-]\d{1,2})(?=\s|>>|[:：]|$)/);if(!m)return null;const value=m[1];const parts=value.split(/[./-]/).map(Number);let y,mo,d;
+function priorDateInfo(line){const m=line.match(/^\s*((?:20\d{2}[./-])?\d{1,2}[./-]\d{1,2})(?=\s|>{1,3}|[:：]|$)/);if(!m)return null;const value=m[1];const parts=value.split(/[./-]/).map(Number);let y,mo,d;
  if(parts.length===3)[y,mo,d]=parts;else{[mo,d]=parts;y=Number((val('visitDate')||today()).slice(0,4));}
  if(!(mo>=1&&mo<=12&&d>=1&&d<=31))return null;
  let time=new Date(y,mo-1,d).getTime();if(parts.length===2){const now=Date.parse((val('visitDate')||today())+'T00:00:00');if(time>now+86400000*2){y--;time=new Date(y,mo-1,d).getTime()}}
  return {date:[String(y),String(mo).padStart(2,'0'),String(d).padStart(2,'0')].join('-'),time,marker:m[0]};}
-function splitPriorVisits(text){const lines=text.replace(/\r/g,'').split('\n'),visits=[];let current={date:'',time:NaN,lines:[]};for(const line of lines){const dt=priorDateInfo(line);if(dt){if(current.lines.join('').trim())visits.push(current);current={date:dt.date,time:dt.time,lines:[line.slice(dt.marker.length).replace(/^\s*(>>|[:：])\s*/,'')]};}else current.lines.push(line);}if(current.lines.join('').trim())visits.push(current);if(!visits.length)return[];
- visits.sort((a,b)=>{if(Number.isFinite(a.time)&&Number.isFinite(b.time))return b.time-a.time;return 0});return visits.map(v=>({...v,text:v.lines.join('\n').trim()}));}
+function priorBaselineHeading(line){return /^\s*(?:\d{1,2}\s*[.)]\s*)?(?:LBP|low back pain|nuchal pain|neck pain|shoulder pain|knee pain|hip pain|back pain|headache|요통|경항통|견관절통|슬관절통|어깨통증|무릎통증)(?:\s*\([^)]*\))?\s*$/i.test(line);}
+function splitPriorVisits(text){const visits=[],baselineLines=[],lines=text.replace(/\r/g,'').split('\n');let current=null,baselineMode=false;
+ const push=()=>{if(!current)return;visits.push({...current,text:current.lines.join('\n').trim()});current=null;};
+ for(const line of lines){const dt=priorDateInfo(line);if(dt){push();baselineMode=false;current={date:dt.date,time:dt.time,lines:[line.slice(dt.marker.length).replace(/^\s*(?:>{1,3}|[:：])\s*/, '').trim()]};continue;}
+  if(priorBaselineHeading(line)&&current){push();baselineMode=true;}
+  if(baselineMode||!current)baselineLines.push(line);else current.lines.push(line);
+ }
+ push();visits.sort((a,b)=>(Number.isFinite(a.time)&&Number.isFinite(b.time))?b.time-a.time:0);
+ return {visits,baseline:baselineLines.join('\n').trim()};}
 function priorSections(text){const out={S:[],O:[],A:[],P:[]};let active='';for(const line of String(text).split(/\n/)){const rx=/(?:^|\s)([SOAP])\s*[:：]/gi;const matches=[...line.matchAll(rx)];if(matches.length){for(let j=0;j<matches.length;j++){const tag=matches[j][1].toUpperCase(),end=j+1<matches.length?matches[j+1].index:line.length;out[tag].push(line.slice(matches[j].index+matches[j][0].length,end).trim());active=tag;}}else if(active)out[active].push(line.trim());}return Object.fromEntries(Object.entries(out).map(([key,arr])=>[key,arr.filter(Boolean).join('; ').replace(/;{2,}/g,'; ').trim()]));}
-function priorExtractNrs(text){const arr=[...text.matchAll(/\bNRS\s*[:=]?\s*(\d{1,2})(?:\s*\/\s*10)?(?:\s*(?:→|->|에서)\s*(\d{1,2}))?/gi)];if(!arr.length)return'';const last=arr.at(-1);const a=Number(last[1]),b=last[2]===undefined?null:Number(last[2]);const n=b===null?a:b;return n>=0&&n<=10?String(n):'';}
-function priorExtractO(text){return String(text||'').replace(/\s+/g,' ').split(/;|,\s*(?=(?:SLR|Spurling|ROM|ULTT|[가-힣]+\s*(?:굴곡|신전|회전)))/).filter(Boolean).map(s=>s.trim()).filter(x=>/(ROM|굴곡|신전|회전|측굴|압통|긴장|SLR|Spurling|ULTT|Slump|Finkelstein|Phalen|McMurray|Lachman|검사|맥진|설진|설태|맥상)/i.test(x)).slice(0,12);}
-function priorAnalysis(raw){const trimmed=raw.trim().slice(0,50000);if(!trimmed)return null;const visits=splitPriorVisits(trimmed);const sorted=visits.length?visits:[{date:'',text:trimmed}];const actual=sorted.filter(v=>v.text&&!/^\s*(repeat|동일|상동|전회와 동일)[ .;,]*$/i.test(v.text));const base=actual.find(v=>{const q=priorSections(v.text);return Boolean(q.O||q.A||q.P);})||actual[0]||sorted[0];const latest=sorted[0];let combined='';for(const v of sorted.slice(0,Math.min(sorted.length,8)))combined+='\n'+v.text;
- const sect=priorSections(base.text);const source=sect.S||base.text;const symptoms=PRIOR_TERMS.filter(x=>x.re.test(source)||(!sect.S&&x.re.test(base.text))).map(x=>x.tag);
- const regions=PRIOR_TERMS.filter(x=>x.region&&(x.re.test(source)||(!sect.S&&x.re.test(base.text)))).map(x=>x.region);
- const diag=sect.A||((base.text.match(/(?:진단|상병|Dx)\s*[:：]\s*([^\n;]+)/i)||[])[1]||'');
- const p=sect.P||((base.text.match(/(?:치료|처치|침|부항|추나)\s*[:：]\s*([^\n]+)/i)||[])[1]||'');
- const nrsLatest=priorExtractNrs(latest.text),nrs= nrsLatest||priorExtractNrs(sect.S)||priorExtractNrs(base.text);const nrsDate=nrsLatest?(latest.date||'미확인'):(base.date||'미확인');
- const os=priorExtractO(sect.O||base.text);
- return {visits:sorted,previousDate:latest.date||base.date||'',reference:base.date||'',latest:latest.text,diagnosis:diag.slice(0,280),procedure:p.slice(0,500),symptoms,regions:[...new Set(regions)],nrs,nrsDate,os,usedOtherVisit:latest!==base,hasUncertainDate:!latest.date};}
+function priorExtractNrs(text){const arr=[...String(text||'').matchAll(/\bNRS\s*[:=]?\s*(\d{1,2})(?:\s*\/\s*10)?(?:\s*(?:→|->|에서)\s*(\d{1,2}))?/gi)];if(!arr.length)return'';const last=arr.at(-1);const a=Number(last[1]),b=last[2]===undefined?null:Number(last[2]);const n=b===null?a:b;return n>=0&&n<=10?String(n):'';}
+function priorExtractO(text){const out=[];const lines=String(text||'').replace(/\r/g,'').split('\n');
+ for(const raw of lines){const s=raw.trim().replace(/^[-•·]\s*/,'');if(!s)continue;
+  const rom=s.match(/^\s*(?:-\s*)?ROM\s+(.+)$/i);
+  if(rom){const source=rom[1],pats=[['굴곡',/\bFlexion\s*(\d{1,3})\s*[°˚º]?/i],['신전',/\bExtension\s*(\d{1,3})\s*[°˚º]?/i],['측굴',/\b(?:Lat\.?\s*bending|Lateral\s*flexion)\s*(\d{1,3})\s*[°˚º]?\s*\/\s*(\d{1,3})/i],['회전',/\bRotation\s*(\d{1,3})\s*[°˚º]?\s*\/\s*(\d{1,3})/i]];
+   const found=pats.map(([label,re])=>{const m=source.match(re);return m?label+' '+m[1]+'°'+(m[2]?'/'+m[2]+'°':''):''}).filter(Boolean);
+   out.push(found.length?'ROM '+found.join(', '):s.replace(/[˚º]/g,'°'));continue;}
+  if(/\bSLR\s*(?:test)?\s*[:=]?\s*(\d{1,3})\s*[°˚º]?\s*\/\s*(\d{1,3})\s*[°˚º]?/i.test(s)){const m=s.match(/\bSLR\s*(?:test)?\s*[:=]?\s*(\d{1,3})\s*[°˚º]?\s*\/\s*(\d{1,3})\s*[°˚º]?/i);out.push('SLR '+m[1]+'°/'+m[2]+'°');continue;}
+  if(/(ROM|굴곡|신전|회전|측굴|압통|tenderness|SLR|Spurling|ULTT|Slump|Finkelstein|Phalen|McMurray|Lachman|검사|맥진|설진|설태|맥상|\brad\s*\([+-])/i.test(s))out.push(s.replace(/[˚º]/g,'°'));
+ }
+ return [...new Set(out)].slice(0,18);}
+function priorBaselineInfo(raw){const lines=String(raw||'').split('\n'),title=lines.find(priorBaselineHeading)||'';
+ const onset=(String(raw).match(/\bonset\s*[):：=]\s*([^\n;]+)/i)||[])[1]||'';
+ const mode=(String(raw).match(/\bmode\s*[):：=]\s*([^\n;]+)/i)||[])[1]||'';
+ const other=lines.map(x=>x.trim().replace(/^[-•·]\s*/, '').replace(/^\"|\"$/g,'')).filter(x=>x&&!priorBaselineHeading(x)&&!/^(?:onset|mode)\s*[):：=]/i.test(x)&&!/^ROM\s/i.test(x)&&!/^SLR\s/i.test(x));
+ return {chief:title.replace(/^\s*\d+\s*[.)]\s*/, '').trim(),onset:onset.trim(),mode:mode.trim(),other:other.slice(0,12)};}
+function priorAnalysis(raw){const trimmed=raw.trim().slice(0,50000);if(!trimmed)return null;
+ const parsed=splitPriorVisits(trimmed),visits=parsed.visits,baseline=parsed.baseline;
+ const datedWithNotes=visits.filter(v=>v.text&&!/^\s*(?:repeat|동일|상동|전회와 동일)[ .;,]*$/i.test(v.text));
+ const latestDated=visits[0]||null,latestNote=datedWithNotes[0]||null;
+ const latest=latestNote||{date:'',text:baseline};
+ const original=baseline||datedWithNotes.at(-1)?.text||trimmed;
+ const baseSections=priorSections(original);
+ const diagCandidates=[...datedWithNotes, ...(baseline?[{date:'',text:baseline}]:[])];
+ const diagSource=diagCandidates.map(v=>({v,sect:priorSections(v.text)})).find(x=>x.sect.A||/(?:진단|상병|Dx)\s*[:：]\s*[^\n;]+/i.test(x.v.text));
+ const diag=diagSource?(diagSource.sect.A||((diagSource.v.text.match(/(?:진단|상병|Dx)\s*[:：]\s*([^\n;]+)/i)||[])[1]||'')):'';
+ const procedureSource=diagCandidates.map(v=>({v,sect:priorSections(v.text)})).find(x=>x.sect.P||/(?:치료|처치)\s*[:：]\s*[^\n]+/i.test(x.v.text));
+ const p=procedureSource?(procedureSource.sect.P||((procedureSource.v.text.match(/(?:치료|처치)\s*[:：]\s*([^\n]+)/i)||[])[1]||'')):'';
+ const searchable=[baseline,...visits.map(v=>v.text)].filter(Boolean).join('\n');
+ const symptoms=PRIOR_TERMS.filter(x=>x.re.test(searchable)).map(x=>x.tag);
+ const regions=PRIOR_TERMS.filter(x=>x.region&&x.re.test(searchable)).map(x=>x.region);
+ const nrsCandidate=datedWithNotes.map(v=>({date:v.date,nrs:priorExtractNrs(v.text)})).find(v=>v.nrs!=='');
+ const nrs=nrsCandidate?.nrs||priorExtractNrs(baseline),nrsDate=nrsCandidate?.date||(nrs?'초진 기준 기록':'');
+ const os=[];for(const v of datedWithNotes.slice(0,8)){for(const note of priorExtractO(v.text)){os.push(v.date.slice(5)+' · '+note);if(os.length>=15)break;}if(os.length>=15)break;}
+ if(baseline)for(const note of priorExtractO(baseline)){if(os.length>=22)break;os.push('초진 기준 · '+note);}
+ const info=priorBaselineInfo(baseline);
+ return {visits,previousDate:latestDated?.date||'',reference:baseline?'초진 기준':(latestNote?.date||''),latest:latest.text,diagnosis:diag.slice(0,280),procedure:p.slice(0,500),symptoms,regions:[...new Set(regions)],nrs,nrsDate,os,baseline,baselineOnset:info.onset,baselineMode:info.mode,baselineChief:info.chief,baselineOther:info.other,lastMeaningfulDate:latestNote?.date||'',usedOtherVisit:!!baseline||!!(latestDated&&latestNote&&latestDated!==latestNote),hasUncertainDate:!latestDated?.date};}
 function priorSelectedAdvice(){const s=[],a=[];if(!priorState.analyzed)return{s,a};const sx=[...priorState.chosenSymptoms];
  if(priorState.includeBackground&&sx.length)s.push('금일 확인한 기존 주증상: '+sx.join(', '));
  else if(sx.length)s.push('금일 재확인 증상: '+sx.join(', '));
@@ -1768,25 +1812,36 @@ function priorSelectedAdvice(){const s=[],a=[];if(!priorState.analyzed)return{s,
  if($('priorDxConfirmed').checked&&priorState.diagnosis)a.push('기존 진단 재평가 후 유지: '+sanitize(priorState.diagnosis));
  return{s,a};}
 function drawPriorResults(){const outer=$('priorResult');outer.classList.toggle('show',priorState.analyzed);if(!priorState.analyzed)return;
- $('priorQuality').textContent=priorState.usedOtherVisit?'최근 기록이 반복·단축되어 직전 상세기록도 참조':'최신 기록 중심으로 분석';
- const stat=$('priorStats');stat.replaceChildren();for(const s of [`입력 기록 ${priorState.visits.length}건`,priorState.previousDate?'최근 날짜 '+priorState.previousDate:'최근 날짜 미확인',priorState.reference&&priorState.reference!==priorState.previousDate?'상세 참고 '+priorState.reference:null,priorState.nrs?'기록상 NRS '+priorState.nrs+(priorState.nrsDate&&priorState.nrsDate!=='미확인'?' ('+priorState.nrsDate+')':''):null].filter(Boolean))stat.append(makePart('span','prior-stat',s));
- const symptom=$('priorSymptomChips');symptom.replaceChildren();if(!priorState.symptoms.length)symptom.append(makePart('span','micro','주증상 키워드를 찾지 못했습니다. 아래 추가 S를 활용하세요.'));
- for(const s of priorState.symptoms)symptom.append(choiceButton(s,priorState.chosenSymptoms.has(s),()=>{priorState.chosenSymptoms.has(s)?priorState.chosenSymptoms.delete(s):priorState.chosenSymptoms.add(s);drawPriorResults();render()}));
- const a=$('priorAreaChips');a.replaceChildren();if(!priorState.regions.length)a.append(makePart('span','micro','기존 차트에서 부위 후보가 확인되지 않았습니다. 인체도에서 직접 선택하세요.'));
- for(const r of priorState.regions){const key=r+'|C|back',has=state.regions.has(key);let label=DATA[r]?.label||r;a.append(choiceButton(label+(has?' (추가됨)':''),has,()=>{if(!state.regions.has(key))addRegion(r,'C',r==='head'||r==='abdomen'?'front':'back');drawPriorResults()}));}
- $('priorDiagText').textContent=priorState.diagnosis||'기존 차트에서 진단문을 분리하지 못했습니다. 아래 A에 직접 선택하거나 기입하세요.';
- $('priorOldO').textContent=priorState.os.length?priorState.os.join('\n'):'구체적인 이전 검사 소견이 인식되지 않았습니다.';
- $('priorOldP').textContent=priorState.procedure||'이전 치료내역을 추출하지 못했습니다.';
+ $('priorQuality').textContent=priorState.baseline?'날짜별 경과 + 맨 아래 초진 기본기록 분리 완료':priorState.usedOtherVisit?'내용 있는 최근 기록을 기준으로 분석':'최신 날짜 기록 중심으로 분석';
+ const stat=$('priorStats');stat.replaceChildren();for(const item of [`날짜별 기록 ${priorState.visits.length}건`,priorState.previousDate?'최신 날짜 '+priorState.previousDate:'날짜 미확인',priorState.lastMeaningfulDate?'최근 내용 있는 날짜 '+priorState.lastMeaningfulDate:null,priorState.baseline?'초진 기본기록 별도 인식':null,priorState.nrs?'과거 NRS '+priorState.nrs+(priorState.nrsDate?' ('+priorState.nrsDate+')':''):null].filter(Boolean))stat.append(makePart('span','prior-stat',item));
+ const timeline=$('priorTimeline');timeline.replaceChildren();if(!priorState.visits.length)timeline.append(makePart('span','micro','날짜 표기 없이 작성된 기록입니다.'));
+ for(const v of priorState.visits.slice(0,12)){const row=makePart('div','prior-timeline-row'),date=makePart('span','prior-timeline-date',v.date.slice(5)),note=makePart('span','prior-timeline-note'+(!v.text?' prior-timeline-empty':''),v.text||'내용 없는 날짜 — 진찰 소견으로 간주하지 않음');row.append(date,note);timeline.append(row);}
+ if(priorState.visits.length>12)timeline.append(makePart('span','micro','최근 12건만 표시하며 원본에는 이전 기록도 남아 있습니다.'));
+ const b=$('priorBaseline');b.textContent=priorState.baseline?[
+  priorState.baselineChief?'주소증: '+priorState.baselineChief:null,
+  priorState.baselineOnset?'Onset) '+priorState.baselineOnset:null,
+  priorState.baselineMode?'Mode) '+priorState.baselineMode:null,
+  ...priorState.baselineOther.map(x=>'기존 증상·부위: '+x),
+  ...priorExtractO(priorState.baseline).map(x=>'과거 O: '+x)
+ ].filter(Boolean).join('\n')||priorState.baseline:'별도의 초진 기본기록이 없습니다. 날짜별 경과기록만 분석했습니다.';
+ const symptom=$('priorSymptomChips');symptom.replaceChildren();if(!priorState.symptoms.length)symptom.append(makePart('span','micro','기존 기록에서 증상 키워드를 찾지 못했습니다. 오늘 진찰 결과를 직접 입력하세요.'));
+ for(const name of priorState.symptoms)symptom.append(choiceButton(name,priorState.chosenSymptoms.has(name),()=>{priorState.chosenSymptoms.has(name)?priorState.chosenSymptoms.delete(name):priorState.chosenSymptoms.add(name);drawPriorResults();render()}));
+ const area=$('priorAreaChips');area.replaceChildren();if(!priorState.regions.length)area.append(makePart('span','micro','과거 기록에서 부위를 찾지 못했습니다. 인체도에서 직접 선택하세요.'));
+ for(const r of priorState.regions){const key=r+'|C|back',has=state.regions.has(key);let label=DATA[r]?.label||r;area.append(choiceButton(label+(has?' (추가됨)':''),has,()=>{if(!state.regions.has(key))addRegion(r,'C',r==='head'||r==='abdomen'?'front':'back');drawPriorResults()}));}
+ $('priorDiagText').textContent=priorState.diagnosis||((priorState.baselineChief?'초진 주소증: '+priorState.baselineChief+' (상병 확정 아님)\n':'')+'명시적인 A 진단을 찾지 못했습니다. 금일 진찰 후 직접 선택하세요.');
+ $('priorDxConfirmed').disabled=!priorState.diagnosis;
+ $('priorOldO').textContent=priorState.os.length?priorState.os.join('\n'):'기록에서 검사 소견을 추출하지 못했습니다. 과거 검사 결과는 오늘 O에 자동 포함되지 않습니다.';
+ $('priorOldP').textContent=priorState.procedure||'과거 기록에서 P 시술을 분리하지 못했습니다.';
 }
 function analyzePrior(){const parsed=priorAnalysis(val('priorRaw'));if(!parsed){toast('기존 진료기록을 붙여넣어 주세요.');return}Object.assign(priorState,parsed,{analyzed:true,chosenSymptoms:new Set(),dxConfirmed:false,includeBackground:false,compareConfirmed:false});
  for(const id of ['priorDxConfirmed','priorNrsVerified','priorUseBackground','priorPConfirmed'])$(id).checked=false;
  for(const id of ['priorTodayNrs','priorFunctional','priorTodayChange'])$(id).value='';
  if(state.mode==='initial')setMode('followup');drawPriorResults();render();toast('과거 기록 분석 완료. 오늘 확인한 증상과 검사만 선택하세요.');}
 function usePreviousPlan(){if(!priorState.analyzed||!priorState.procedure){toast('이전 P를 추출하지 못했습니다.');return}if(!$('priorPConfirmed').checked){toast('금일 실제 시술과 동일한지 확인을 체크하세요.');return}setPlan('manual');$('manualP').value=priorState.procedure;render();toast('이전 P를 직접입력에 가져왔습니다. 당일 실제 시행 여부를 검토한 후 복사하세요.');}
-function clearPrior(){priorState.analyzed=false;priorState.visits=[];priorState.previousDate='';priorState.reference='';priorState.latest='';priorState.symptoms=[];priorState.regions=[];priorState.nrs='';priorState.nrsDate='';priorState.os=[];priorState.diagnosis='';priorState.procedure='';priorState.chosenSymptoms.clear();$('priorRaw').value='';for(const id of ['priorDxConfirmed','priorNrsVerified','priorUseBackground','priorPConfirmed'])$(id).checked=false;for(const id of ['priorTodayNrs','priorFunctional','priorTodayChange'])$(id).value='';drawPriorResults();render()}
+function clearPrior(){priorState.analyzed=false;priorState.visits=[];priorState.previousDate='';priorState.reference='';priorState.latest='';priorState.symptoms=[];priorState.regions=[];priorState.nrs='';priorState.nrsDate='';priorState.os=[];priorState.diagnosis='';priorState.procedure='';priorState.baseline='';priorState.baselineOnset='';priorState.baselineMode='';priorState.baselineChief='';priorState.baselineOther=[];priorState.lastMeaningfulDate='';priorState.chosenSymptoms.clear();$('priorRaw').value='';for(const id of ['priorDxConfirmed','priorNrsVerified','priorUseBackground','priorPConfirmed'])$(id).checked=false;for(const id of ['priorTodayNrs','priorFunctional','priorTodayChange'])$(id).value='';drawPriorResults();render()}
 $('priorAnalyze').onclick=analyzePrior;
 $('priorRaw').addEventListener('paste',()=>setTimeout(analyzePrior,0));
-$('priorExample').onclick=()=>{$('priorRaw').value='10.28 >> 경항통 약호전 NRS 5, 장시간 운전 시 통증 잔존\n10.21 >> S: 경항통과 좌측 견갑부 당김, NRS 7/10\nO: 경추 우회전 40° 제한, 상부승모근 압통(+), Spurling(-/-)\nA: 경추부 염좌 및 긴장\nP: 경항부 경혈침술, 요부 부항';analyzePrior()};
+$('priorExample').onclick=()=>{$('priorRaw').value='11.13>>\n11.3> 호전중.\n10.30>> 금일은 수면장애\n  - 통증부위: 요부(뒷면)\n  - 금일 재확인 증상: 요통\n  - 금일 NRS 3/10\n10.27>> 좌측 L1 기립근 압통 유지중\ntenderness(+), rad(-/-)\n1. LBP\nonset) 10.12\nmode) 급정거로 넘어짐\n-SLR test 60˚/60˚\n-ROM Flexion 90˚ Extension 25˚ Lat. bending 25˚/25˚ Rotation 45˚/45˚';analyzePrior()};
 $('priorClear').onclick=clearPrior;
 $('priorUseP').onclick=usePreviousPlan;
 
